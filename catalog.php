@@ -75,32 +75,31 @@ function buildUrl($overrides = []) {
 }
 ?>
 
-<!-- Витрина каталога: не статичная плашка, а объёмный вход в библиотеку -->
-<section class="relative isolate mb-8 overflow-hidden rounded-[2rem] border border-white/[.10] bg-zinc-900/70 px-7 py-10 md:px-12 md:py-12">
+<!-- Витрина каталога -->
+<section class="relative isolate mb-8 overflow-hidden" style="border-radius:48px;background:var(--color-surface);padding:clamp(28px,4vw,48px)">
     <div class="site-grid absolute inset-0 -z-10 opacity-60"></div>
-    <div class="absolute -left-24 bottom-0 h-64 w-64 rounded-full bg-blue-500/15 blur-3xl -z-10"></div>
-    <div class="absolute right-0 top-0 h-72 w-72 rounded-full bg-emerald-400/15 blur-3xl -z-10"></div>
-    <div class="grid items-center gap-9 lg:grid-cols-[1fr_390px]">
+    <div style="position:absolute;left:-8%;bottom:-15%;width:280px;height:280px;background:var(--color-accent-200);border-radius:52% 48% 44% 56% / 48% 56% 44% 52%;opacity:.4;animation:shMorph 30s ease-in-out infinite;pointer-events:none"></div>
+    <div style="position:absolute;right:-4%;top:-10%;width:260px;height:260px;background:var(--color-accent-2-200);border-radius:58% 42% 47% 53% / 45% 52% 48% 55%;opacity:.4;animation:shMorph 26s ease-in-out infinite reverse;pointer-events:none"></div>
+    <div class="grid items-center gap-9 lg:grid-cols-[1fr_390px] relative">
         <div class="relative z-10">
-            <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-400/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[.16em] text-emerald-300"><i class="fa-solid fa-book-open"></i> Библиотека построек</div>
-            <h1 class="max-w-xl text-4xl font-black leading-[.98] tracking-[-.045em] text-white md:text-6xl">Выбери идею.<br><span class="text-emerald-300">Собери свой мир.</span></h1>
-            <p class="mt-5 max-w-xl text-base leading-relaxed text-zinc-300">Смотрите модель до скачивания, отбирайте проекты по стилю и находите вдохновение для следующей постройки.</p>
-            <div class="mt-7 flex flex-wrap gap-3 text-sm">
-                <span class="rounded-xl border border-white/[.09] bg-black/20 px-3 py-2 text-zinc-300"><i class="fa-solid fa-cubes mr-2 text-emerald-300"></i><?= number_format($total_items, 0, ',', ' ') ?> работ</span>
-                <span class="rounded-xl border border-white/[.09] bg-black/20 px-3 py-2 text-zinc-300"><i class="fa-solid fa-eye mr-2 text-sky-300"></i>3D-просмотр</span>
+            <div class="tag tag-accent-2 mb-4"><i class="fa-solid fa-book-open"></i> Библиотека построек</div>
+            <h1 style="font-size:clamp(34px,4.6vw,58px);line-height:.98;max-width:22ch">Выбери идею.<br><span style="color:var(--color-accent)">Собери свой мир.</span></h1>
+            <p class="mt-4 max-w-xl" style="font-size:16px;line-height:1.6;opacity:.75">Смотрите модель до скачивания, отбирайте проекты по стилю и находите вдохновение для следующей постройки.</p>
+            <div class="mt-6 flex flex-wrap gap-2">
+                <span class="tag tag-neutral"><i class="fa-solid fa-cubes" style="color:var(--color-accent)"></i> <?= number_format($total_items, 0, ',', ' ') ?> работ</span>
+                <span class="tag tag-neutral"><i class="fa-solid fa-eye" style="color:var(--color-accent-2-600)"></i> 3D-просмотр</span>
             </div>
         </div>
         <div class="diorama relative hidden h-60 lg:block" aria-hidden="true">
-            <div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-emerald-400/10 to-blue-500/5 blur-xl"></div>
             <?php foreach (array_slice($schematics, 0, 3) as $i => $showcase): ?>
                 <?php $transforms = ['translate3d(12px, 57px, -80px) rotateX(13deg) rotateY(-27deg) rotateZ(1deg)', 'translate3d(76px, 24px, 0) rotateX(13deg) rotateY(-27deg) rotateZ(1deg)', 'translate3d(163px, 71px, -42px) rotateX(13deg) rotateY(-27deg) rotateZ(1deg)']; ?>
-                <div class="diorama-card absolute h-40 w-56 overflow-hidden rounded-2xl border border-white/20 bg-zinc-800" style="transform: <?= $transforms[$i] ?>">
+                <div class="elev-lg absolute h-40 w-56 overflow-hidden" style="border-radius:22px;background:var(--color-neutral-200);transform: <?= $transforms[$i] ?>">
                     <?php if (!empty($showcase['thumbnail_path'])): ?>
                         <img src="<?= htmlspecialchars(get_image_url($showcase['thumbnail_path'])) ?>" class="h-full w-full object-cover" alt="">
                     <?php else: ?>
-                        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 to-sky-700/30 text-5xl text-emerald-200"><i class="fa-solid fa-cube"></i></div>
+                        <div class="flex h-full w-full items-center justify-center" style="font-size:44px;opacity:.25"><i class="fa-solid fa-cube"></i></div>
                     <?php endif; ?>
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-4 pb-3 pt-10 text-sm font-bold text-white truncate"><?= htmlspecialchars($showcase['title']) ?></div>
+                    <div class="absolute inset-x-0 bottom-0 px-4 pb-3 pt-10 text-sm font-bold truncate" style="background:linear-gradient(to top, rgba(0,0,0,.85), transparent); color:var(--color-neutral-900)"><?= htmlspecialchars($showcase['title']) ?></div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -109,109 +108,83 @@ function buildUrl($overrides = []) {
 
 <!-- Обертка для панели фильтров -->
 <div id="catalog-filters" class="transition-opacity duration-300">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl mb-8 shadow-sm">
-        <div class="flex flex-wrap border-b border-zinc-800">
-            <a href="<?= buildUrl(['sort'=>'new', 'page'=>1]) ?>" class="spa-link px-5 py-4 text-sm font-semibold transition-colors flex items-center gap-2 <?= $sort=='new' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50' ?>">
-                <i class="fa-solid fa-asterisk"></i> Новые
-            </a>
-            <a href="<?= buildUrl(['sort'=>'downloads', 'page'=>1]) ?>" class="spa-link px-5 py-4 text-sm font-semibold transition-colors flex items-center gap-2 <?= $sort=='downloads' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50' ?>">
-                <i class="fa-solid fa-download"></i> Скачивания
-            </a>
-            <a href="<?= buildUrl(['sort'=>'views', 'page'=>1]) ?>" class="spa-link px-5 py-4 text-sm font-semibold transition-colors flex items-center gap-2 <?= $sort=='views' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50' ?>">
-                <i class="fa-solid fa-eye"></i> Просмотры
-            </a>
-            <a href="<?= buildUrl(['sort'=>'rating', 'page'=>1]) ?>" class="spa-link px-5 py-4 text-sm font-semibold transition-colors flex items-center gap-2 <?= $sort=='rating' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50' ?>">
-                <i class="fa-solid fa-star"></i> Рейтинг
-            </a>
-            <a href="<?= buildUrl(['sort'=>'ratio', 'page'=>1]) ?>" class="spa-link px-5 py-4 text-sm font-semibold transition-colors flex items-center gap-2 <?= $sort=='ratio' ? 'text-blue-400 border-b-2 border-blue-500 bg-blue-500/5' : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50' ?>">
-                <i class="fa-solid fa-fire text-amber-500"></i> Тренды
-            </a>
-        </div>
-        
-        <div class="flex flex-wrap gap-4 p-4 items-center bg-zinc-900/50 rounded-b-2xl">
-            <select name="type" class="spa-select bg-zinc-950 border border-zinc-700 text-zinc-300 hover:border-zinc-500 py-2 px-4 rounded-xl text-sm outline-none transition-colors cursor-pointer">
-                <option value="">Все типы</option>
-                <?php foreach($BUILD_TYPES as $key => $label): ?>
-                    <option value="<?= $key ?>" <?= $selected_type == $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-                <?php endforeach; ?>
-            </select>
+    <div class="flex gap-1.5 flex-wrap mb-4">
+        <a href="<?= buildUrl(['sort'=>'new', 'page'=>1]) ?>" class="spa-link tag <?= $sort=='new' ? 'tag-accent' : 'tag-outline' ?>" style="padding:9px 16px"><i class="fa-solid fa-asterisk"></i> Новые</a>
+        <a href="<?= buildUrl(['sort'=>'downloads', 'page'=>1]) ?>" class="spa-link tag <?= $sort=='downloads' ? 'tag-accent' : 'tag-outline' ?>" style="padding:9px 16px"><i class="fa-solid fa-download"></i> Скачивания</a>
+        <a href="<?= buildUrl(['sort'=>'views', 'page'=>1]) ?>" class="spa-link tag <?= $sort=='views' ? 'tag-accent' : 'tag-outline' ?>" style="padding:9px 16px"><i class="fa-solid fa-eye"></i> Просмотры</a>
+        <a href="<?= buildUrl(['sort'=>'rating', 'page'=>1]) ?>" class="spa-link tag <?= $sort=='rating' ? 'tag-accent' : 'tag-outline' ?>" style="padding:9px 16px"><i class="fa-solid fa-star"></i> Рейтинг</a>
+        <a href="<?= buildUrl(['sort'=>'ratio', 'page'=>1]) ?>" class="spa-link tag <?= $sort=='ratio' ? 'tag-accent' : 'tag-outline' ?>" style="padding:9px 16px"><i class="fa-solid fa-fire"></i> Тренды</a>
+    </div>
 
-            <select name="style" class="spa-select bg-zinc-950 border border-zinc-700 text-zinc-300 hover:border-zinc-500 py-2 px-4 rounded-xl text-sm outline-none transition-colors cursor-pointer">
-                <option value="">Все стили</option>
-                <?php foreach($BUILD_STYLES as $key => $label): ?>
-                    <option value="<?= $key ?>" <?= $selected_style == $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-                <?php endforeach; ?>
-            </select>
+    <div class="flex flex-wrap gap-3 items-center mb-8" style="background:var(--color-surface);border-radius:26px;padding:16px 18px">
+        <select name="type" class="spa-select input" style="width:auto;flex:none">
+            <option value="">Все типы</option>
+            <?php foreach($BUILD_TYPES as $key => $label): ?>
+                <option value="<?= $key ?>" <?= $selected_type == $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+            <?php endforeach; ?>
+        </select>
 
-            <select name="time" class="spa-select bg-zinc-950 border border-zinc-700 text-zinc-300 hover:border-zinc-500 py-2 px-4 rounded-xl text-sm outline-none transition-colors cursor-pointer">
-                <option value="all" <?= $time == 'all' ? 'selected' : '' ?>>За все время</option>
-                <option value="today" <?= $time == 'today' ? 'selected' : '' ?>>За сегодня</option>
-                <option value="week" <?= $time == 'week' ? 'selected' : '' ?>>За неделю</option>
-                <option value="month" <?= $time == 'month' ? 'selected' : '' ?>>За месяц</option>
-            </select>
+        <select name="style" class="spa-select input" style="width:auto;flex:none">
+            <option value="">Все стили</option>
+            <?php foreach($BUILD_STYLES as $key => $label): ?>
+                <option value="<?= $key ?>" <?= $selected_style == $key ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+            <?php endforeach; ?>
+        </select>
 
-            <form id="search-form" class="ml-auto flex w-full md:w-auto mt-2 md:mt-0 relative">
-                <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Найти схему..." class="bg-zinc-950 border border-zinc-700 text-white py-2 px-4 rounded-l-xl text-sm outline-none w-full md:w-64 focus:border-blue-500 placeholder-zinc-500 transition-colors">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-r-xl transition-colors font-medium">
-                    <i class="fa-solid fa-search"></i>
-                </button>
-            </form>
-        </div>
+        <select name="time" class="spa-select input" style="width:auto;flex:none">
+            <option value="all" <?= $time == 'all' ? 'selected' : '' ?>>За все время</option>
+            <option value="today" <?= $time == 'today' ? 'selected' : '' ?>>За сегодня</option>
+            <option value="week" <?= $time == 'week' ? 'selected' : '' ?>>За неделю</option>
+            <option value="month" <?= $time == 'month' ? 'selected' : '' ?>>За месяц</option>
+        </select>
+
+        <form id="search-form" class="ml-auto flex items-center gap-2 w-full md:w-auto mt-2 md:mt-0" style="background:var(--color-bg);border-radius:999px;padding:6px 6px 6px 16px;max-width:320px">
+            <i class="fa-solid fa-magnifying-glass" style="opacity:.5"></i>
+            <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Найти схему..." class="input" style="border:none;box-shadow:none;background:transparent;padding-inline:0;flex:1;min-width:0">
+            <button type="submit" class="btn btn-primary" style="flex:none;padding:9px 16px">
+                <i class="fa-solid fa-search"></i>
+            </button>
+        </form>
     </div>
 </div>
 
 <!-- Обертка для сетки и пагинации (Динамический контент) -->
 <div id="catalog-content" class="transition-opacity duration-300">
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 text-sm text-zinc-400">
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 text-sm" style="opacity:.7">
         <div>
-            Показано <span class="text-white font-medium"><?= min($offset + 1, $total_items) ?> - <?= min($offset + $per_page, $total_items) ?></span> из <span class="text-white font-medium"><?= number_format($total_items, 0, ',', ' ') ?></span>
+            Показано <span class="font-semibold" style="opacity:1"><?= min($offset + 1, $total_items) ?> - <?= min($offset + $per_page, $total_items) ?></span> из <span class="font-semibold" style="opacity:1"><?= number_format($total_items, 0, ',', ' ') ?></span>
         </div>
-        
-        <?php if($total_pages > 1): ?>
-        <div class="flex gap-2">
-            <?php if($page > 1): ?>
-                <a href="<?= buildUrl(['page' => $page - 1]) ?>" class="spa-link px-3 py-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-lg transition-colors text-white"><i class="fa-solid fa-chevron-left"></i></a>
-            <?php endif; ?>
-            
-            <?php 
-                $start = max(1, $page - 2);
-                $end = min($total_pages, $page + 2);
-                for ($i = $start; $i <= $end; $i++): 
-            ?>
-                <a href="<?= buildUrl(['page' => $i]) ?>" class="spa-link px-4 py-2 rounded-lg font-medium transition-all <?= $i == $page ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300' ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
-
-            <?php if($page < $total_pages): ?>
-                <a href="<?= buildUrl(['page' => $page + 1]) ?>" class="spa-link px-3 py-2 bg-zinc-900 border border-zinc-800 hover:border-zinc-600 rounded-lg transition-colors text-white"><i class="fa-solid fa-chevron-right"></i></a>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
     </div>
 
     <?php if(empty($schematics)): ?>
-        <div class="text-center py-20 bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-700">
-            <i class="fa-solid fa-ghost text-6xl text-zinc-700 mb-4"></i>
-            <h3 class="text-xl font-medium text-zinc-300">Ничего не найдено</h3>
-            <p class="text-zinc-500 mt-2">Попробуйте изменить параметры фильтрации или поиска.</p>
+        <div class="text-center" style="padding:clamp(50px,8vw,100px) 20px;background:var(--color-surface);border-radius:44px">
+            <div style="width:76px;height:76px;border-radius:50%;background:var(--color-neutral-300);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:28px;opacity:.5"><i class="fa-solid fa-ghost"></i></div>
+            <h3 class="mb-2" style="font-size:19px">Ничего не найдено</h3>
+            <p style="opacity:.65">Попробуйте изменить параметры фильтрации или поиска.</p>
         </div>
     <?php else: ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
             <?php foreach($schematics as $schem): ?>
                 <?php include __DIR__ . '/schematic_card.php'; ?>
             <?php endforeach; ?>
         </div>
-        
-        <?php if($total_pages > 1): ?>
-        <div class="flex justify-center mb-8">
-            <div class="flex gap-2 bg-zinc-900 border border-zinc-800 p-2 rounded-xl">
-                <?php for ($i = $start; $i <= $end; $i++): ?>
-                    <a href="<?= buildUrl(['page' => $i]) ?>" class="spa-link px-4 py-2 rounded-lg font-medium transition-all <?= $i == $page ? 'bg-blue-600 text-white shadow-md shadow-blue-900/20' : 'hover:bg-zinc-800 text-zinc-400 hover:text-white' ?>">
-                        <?= $i ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
+
+        <?php if($total_pages > 1):
+            $start = max(1, $page - 2);
+            $end = min($total_pages, $page + 2);
+        ?>
+        <div class="flex justify-center gap-1.5 mb-8">
+            <?php if($page > 1): ?>
+                <a href="<?= buildUrl(['page' => $page - 1]) ?>" class="spa-link" style="width:38px;height:38px;border-radius:999px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--color-divider)"><i class="fa-solid fa-chevron-left" style="font-size:12px"></i></a>
+            <?php endif; ?>
+            <?php for ($i = $start; $i <= $end; $i++): ?>
+                <a href="<?= buildUrl(['page' => $i]) ?>" class="spa-link font-semibold" style="width:38px;height:38px;border-radius:999px;display:grid;place-items:center;font-size:14px;<?= $i == $page ? 'background:var(--color-accent);color:var(--color-bg)' : 'box-shadow:inset 0 0 0 1px var(--color-divider)' ?>">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+            <?php if($page < $total_pages): ?>
+                <a href="<?= buildUrl(['page' => $page + 1]) ?>" class="spa-link" style="width:38px;height:38px;border-radius:999px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--color-divider)"><i class="fa-solid fa-chevron-right" style="font-size:12px"></i></a>
+            <?php endif; ?>
         </div>
         <?php endif; ?>
     <?php endif; ?>

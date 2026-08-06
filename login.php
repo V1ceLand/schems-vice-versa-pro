@@ -11,29 +11,34 @@ $page_description = 'Войдите в SchemHub через Telegram или Googl
 require_once __DIR__ . '/header.php';
 ?>
 
-<section class="relative mx-auto flex min-h-[calc(100vh-15rem)] max-w-lg items-center py-8">
-    <div class="site-grid pointer-events-none absolute inset-x-[-10rem] inset-y-0 -z-10 opacity-50"></div>
-    <div class="glass-panel w-full overflow-hidden rounded-[2rem] p-6 sm:p-9">
-        <div class="mb-8 text-center">
-            <div class="brand-mark mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300 via-emerald-500 to-cyan-600 text-2xl text-zinc-950"><i class="fa-solid fa-cubes"></i></div>
-            <h1 class="mt-5 text-3xl font-black tracking-tight text-white">Добро пожаловать</h1>
-            <p class="mt-2 text-sm leading-relaxed text-zinc-400">Войдите, чтобы публиковать схемы, оценивать работы и собирать свою библиотеку.</p>
+<section class="relative mx-auto flex flex-wrap items-center justify-center gap-14" style="min-height:calc(100vh - 15rem);padding:clamp(30px,6vw,60px) 0">
+    <div class="site-grid pointer-events-none absolute inset-x-[-10rem] inset-y-0 -z-10 opacity-40"></div>
+
+    <div class="flex-none" style="max-width:420px;min-width:280px">
+        <h1 class="mb-3" style="font-size:clamp(30px,4vw,44px);line-height:1.03">Вход в SchemHub</h1>
+        <p class="mb-6" style="font-size:15.5px;line-height:1.6;opacity:.75;max-width:36ch">Войдите, чтобы публиковать схемы, оценивать работы и собирать свою библиотеку. Пароль придумывать не надо.</p>
+
+        <div style="background:var(--color-surface);border-radius:32px;padding:24px;max-width:360px">
+            <div id="google-signin" class="flex min-h-[44px] justify-center"></div>
+            <p id="google-error" class="mt-3 hidden text-center text-sm" style="color:#ff9d9d"></p>
+
+            <div class="my-5 flex items-center gap-3 text-xs" style="opacity:.5"><span class="h-px flex-1" style="background:var(--color-divider)"></span><span>или</span><span class="h-px flex-1" style="background:var(--color-divider)"></span></div>
+
+            <div id="telegram-login-widget" class="flex min-h-[46px] justify-center">
+                <script async src="https://telegram.org/js/telegram-widget.js?22"
+                        data-telegram-login="<?= htmlspecialchars(TG_BOT_USERNAME) ?>"
+                        data-size="large" data-radius="10"
+                        data-auth-url="/auth.php" data-request-access="write"></script>
+            </div>
         </div>
 
-        <div id="google-signin" class="flex min-h-[44px] justify-center"></div>
-        <p id="google-error" class="mt-3 hidden text-center text-sm text-red-300"></p>
+        <p class="mt-5 text-xs leading-relaxed" style="opacity:.6;max-width:40ch"><i class="fa-solid fa-shield-halved" style="color:var(--color-accent)"></i> Мы не получаем пароль от Google или Telegram — сервис передаёт только подтверждённые данные профиля.</p>
+    </div>
 
-        <div class="my-6 flex items-center gap-3 text-xs text-zinc-500"><span class="h-px flex-1 bg-white/[.09]"></span><span>или</span><span class="h-px flex-1 bg-white/[.09]"></span></div>
-
-        <div id="telegram-login-widget" class="flex min-h-[46px] justify-center">
-            <script async src="https://telegram.org/js/telegram-widget.js?22"
-                    data-telegram-login="<?= htmlspecialchars(TG_BOT_USERNAME) ?>"
-                    data-size="large" data-radius="10"
-                    data-auth-url="/auth.php" data-request-access="write"></script>
-        </div>
-
-        <div class="mt-7 rounded-xl border border-emerald-300/10 bg-emerald-400/[.06] px-4 py-3 text-xs leading-relaxed text-zinc-400">
-            <i class="fa-solid fa-shield-halved mr-1.5 text-emerald-300"></i>Мы не получаем пароль от Google или Telegram — сервис передаёт только подтверждённые данные профиля.
+    <div class="flex-none relative" style="width:220px">
+        <div style="position:absolute;top:-8%;left:-10%;width:60%;aspect-ratio:1;border-radius:50%;background:var(--color-accent-200)"></div>
+        <div class="washed elev-lg relative" style="border-radius:44px;overflow:hidden;aspect-ratio:3/4;display:flex;align-items:center;justify-content:center">
+            <i class="fa-solid fa-cubes" style="font-size:48px;opacity:.2"></i>
         </div>
     </div>
 </section>

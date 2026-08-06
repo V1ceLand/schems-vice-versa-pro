@@ -53,7 +53,7 @@ $stmt->execute([$user_id]);
 $profile_user = $stmt->fetch();
 
 if (!$profile_user) {
-    echo "<div class='text-center py-20 text-xl text-red-400'>Пользователь не найден.</div>";
+    echo "<div class='text-center py-20 text-xl' style='color:#ff9d9d'>Пользователь не найден.</div>";
     require_once __DIR__ . '/footer.php';
     exit;
 }
@@ -104,106 +104,106 @@ $avatar_shape = $profile_user['avatar_shape'] ?? 'round';
 $avatar_class = $avatar_shape === 'square' ? 'rounded-2xl' : 'rounded-full';
 ?>
 
+<!-- Обложка профиля -->
+<div class="relative overflow-hidden" style="height:clamp(110px,16vw,180px);border-radius:44px;background:var(--color-accent-2-200)">
+    <div style="position:absolute;top:-20%;right:-6%;width:220px;height:220px;background:var(--color-accent-2-300);border-radius:52% 48% 44% 56% / 48% 56% 44% 52%;opacity:.6;animation:shMorph 30s ease-in-out infinite"></div>
+</div>
+
 <!-- Шапка профиля -->
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-10 flex flex-col md:flex-row gap-8 items-center md:items-start relative overflow-hidden">
-    <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-    
-    <div class="relative z-10 shrink-0">
-        <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar" class="w-32 h-32 <?= $avatar_class ?> border-4 border-zinc-800 shadow-xl object-cover">
-    </div>
-    
-    <div class="flex-1 relative z-10 w-full text-center md:text-left">
-        <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-4 mb-4">
+<div class="relative flex flex-col md:flex-row gap-6 items-center md:items-end" style="margin-top:-52px;padding:0 8px;z-index:2">
+    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar" class="w-28 h-28 <?= $avatar_class ?> flex-none object-cover" style="box-shadow:0 0 0 6px var(--color-bg)">
+
+    <div class="flex-1 w-full text-center md:text-left" style="padding-bottom:6px">
+        <div class="flex flex-col md:flex-row justify-between items-center md:items-end gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-white mb-1"><?= htmlspecialchars($profile_user['first_name'] . ' ' . $profile_user['last_name']) ?></h1>
-                <p class="text-blue-400 font-medium"><?= htmlspecialchars($display_name) ?></p>
+                <h1 class="mb-0.5" style="font-size:clamp(24px,3vw,34px)"><?= htmlspecialchars($profile_user['first_name'] . ' ' . $profile_user['last_name']) ?></h1>
+                <p style="opacity:.6;font-size:15px"><?= htmlspecialchars($display_name) ?></p>
             </div>
-            
+
             <!-- Кнопки действий -->
-            <div class="flex gap-3">
+            <div class="flex gap-2">
                 <?php if($is_owner): ?>
-                    <!-- Кнопка редактирования для Владельца -->
-                    <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="bg-zinc-800 hover:bg-zinc-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-lg">
-                        <i class="fa-solid fa-pen mr-2"></i> Редактировать профиль
+                    <button onclick="document.getElementById('editModal').classList.remove('hidden')" class="btn btn-secondary">
+                        <i class="fa-solid fa-pen"></i> Редактировать профиль
                     </button>
                 <?php elseif($current_user_id): ?>
-                    <!-- Кнопка подписки для других авторизованных юзеров -->
-                    <button id="subBtn" onclick="toggleSubscribe(<?= $user_id ?>)" class="px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-lg <?= $is_subscribed ? 'bg-zinc-800 text-zinc-300 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500' : 'bg-blue-600 text-white hover:bg-blue-500' ?>">
+                    <button id="subBtn" onclick="toggleSubscribe(<?= $user_id ?>)" class="btn <?= $is_subscribed ? 'btn-secondary' : 'btn-primary' ?>">
                         <?php if($is_subscribed): ?>
-                            <i class="fa-solid fa-check mr-1" id="subIcon"></i> <span id="subText">Вы подписаны</span>
+                            <i class="fa-solid fa-check" id="subIcon"></i> <span id="subText">Вы подписаны</span>
                         <?php else: ?>
-                            <i class="fa-solid fa-user-plus mr-1" id="subIcon"></i> <span id="subText">Подписаться</span>
+                            <i class="fa-solid fa-user-plus" id="subIcon"></i> <span id="subText">Подписаться</span>
                         <?php endif; ?>
                     </button>
                 <?php endif; ?>
             </div>
         </div>
+    </div>
+</div>
 
+<div class="flex flex-wrap items-end justify-between gap-6 mt-6 mb-10" style="padding:0 8px">
+    <div style="max-width:46ch">
         <?php if(!empty($profile_user['description'])): ?>
-            <p class="text-zinc-400 mb-6 text-sm max-w-3xl whitespace-pre-wrap mx-auto md:mx-0"><?= htmlspecialchars($profile_user['description']) ?></p>
+            <p style="font-size:15px;line-height:1.6;opacity:.8;white-space:pre-wrap" class="mb-3"><?= htmlspecialchars($profile_user['description']) ?></p>
         <?php endif; ?>
-
-        <div class="flex flex-wrap justify-center md:justify-start items-center gap-6 mt-4">
-            <div class="flex items-center gap-2 text-sm bg-zinc-950 px-4 py-2.5 rounded-xl border border-zinc-800">
-                <i class="fa-brands fa-telegram text-blue-500 text-lg"></i>
-                <span class="text-zinc-300 font-medium"><?= htmlspecialchars($contacts) ?></span>
-            </div>
-            <div class="flex gap-6 text-center">
-                <div><div class="text-xl font-bold text-white"><?= $stats['total_schems'] ?: 0 ?></div><div class="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mt-0.5">Схем</div></div>
-                <div><div class="text-xl font-bold text-emerald-400"><?= $stats['total_downloads'] ?: 0 ?></div><div class="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mt-0.5">Скачиваний</div></div>
-                <div><div class="text-xl font-bold text-rose-400" id="followersCount"><?= $followers_count ?></div><div class="text-[10px] text-zinc-500 uppercase font-bold tracking-wider mt-0.5">Подписчиков</div></div>
-            </div>
+        <div class="tag tag-neutral inline-flex">
+            <i class="fa-brands fa-telegram" style="color:var(--color-accent)"></i>
+            <?= htmlspecialchars($contacts) ?>
         </div>
+    </div>
+    <div class="flex gap-8 flex-wrap">
+        <div><div class="font-heading" style="font-size:26px;line-height:1"><?= $stats['total_schems'] ?: 0 ?></div><div style="font-size:12px;opacity:.6;margin-top:2px">схем</div></div>
+        <div><div class="font-heading" style="font-size:26px;line-height:1;color:var(--color-accent)"><?= $stats['total_downloads'] ?: 0 ?></div><div style="font-size:12px;opacity:.6;margin-top:2px">скачиваний</div></div>
+        <div><div class="font-heading" style="font-size:26px;line-height:1" id="followersCount"><?= $followers_count ?></div><div style="font-size:12px;opacity:.6;margin-top:2px">подписчиков</div></div>
     </div>
 </div>
 
 <!-- Модальное окно редактирования профиля -->
 <?php if($is_owner): ?>
-<div id="editModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-700 rounded-3xl w-full max-w-lg p-6 relative shadow-2xl">
-        <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="absolute top-5 right-5 text-zinc-500 hover:text-white transition-colors">
+<div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4" style="background:rgba(0,0,0,.7);backdrop-filter:blur(4px)">
+    <div class="elev-lg w-full max-w-lg relative" style="background:var(--color-surface);border-radius:36px;padding:28px">
+        <button type="button" onclick="document.getElementById('editModal').classList.add('hidden')" class="absolute top-5 right-5 transition-colors" style="opacity:.5">
             <i class="fa-solid fa-xmark text-xl"></i>
         </button>
-        <h2 class="text-xl font-bold text-white mb-6">Настройки профиля</h2>
-        
-        <form method="POST" class="space-y-5">
+        <h2 class="mb-6" style="font-size:21px">Настройки профиля</h2>
+
+        <form method="POST" class="space-y-4">
             <input type="hidden" name="action" value="edit_profile">
-            
-            <div>
-                <label class="block text-sm font-medium text-zinc-400 mb-2">О себе (описание)</label>
-                <textarea name="description" rows="3" placeholder="Расскажите о себе или своих постройках..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors"><?= htmlspecialchars($profile_user['description'] ?? '') ?></textarea>
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-zinc-400 mb-2">Контакты (Discord, TG и т.д.)</label>
-                <input type="text" name="contacts" value="<?= htmlspecialchars($profile_user['contacts'] ?? '') ?>" placeholder="<?= htmlspecialchars($contacts) ?>" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-white focus:border-blue-500 outline-none transition-colors">
+
+            <div class="field">
+                <label>О себе (описание)</label>
+                <textarea name="description" rows="3" placeholder="Расскажите о себе или своих постройках..." class="input"><?= htmlspecialchars($profile_user['description'] ?? '') ?></textarea>
             </div>
 
-            <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800">
-                <label class="block text-sm font-medium text-zinc-400 mb-3">Форма аватара</label>
+            <div class="field">
+                <label>Контакты (Discord, TG и т.д.)</label>
+                <input type="text" name="contacts" value="<?= htmlspecialchars($profile_user['contacts'] ?? '') ?>" placeholder="<?= htmlspecialchars($contacts) ?>" class="input">
+            </div>
+
+            <div style="background:var(--color-bg);border-radius:22px;padding:16px 18px">
+                <label class="block text-sm font-medium mb-3" style="opacity:.7">Форма аватара</label>
                 <div class="flex gap-6">
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="avatar_shape" value="round" <?= $avatar_shape === 'round' ? 'checked' : '' ?> class="accent-blue-500 w-4 h-4">
-                        <span class="text-zinc-300 group-hover:text-white transition-colors">Круглый</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="avatar_shape" value="round" <?= $avatar_shape === 'round' ? 'checked' : '' ?> style="accent-color:var(--color-accent);width:16px;height:16px">
+                        <span>Круглый</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="radio" name="avatar_shape" value="square" <?= $avatar_shape === 'square' ? 'checked' : '' ?> class="accent-blue-500 w-4 h-4">
-                        <span class="text-zinc-300 group-hover:text-white transition-colors">Квадратный</span>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="avatar_shape" value="square" <?= $avatar_shape === 'square' ? 'checked' : '' ?> style="accent-color:var(--color-accent);width:16px;height:16px">
+                        <span>Квадратный</span>
                     </label>
                 </div>
-                <p class="text-xs text-zinc-500 mt-3 leading-relaxed">* Чтобы обновить саму фотографию профиля, перезайдите на сайт через Telegram-виджет.</p>
+                <p class="text-xs mt-3 leading-relaxed" style="opacity:.55">* Чтобы обновить саму фотографию профиля, перезайдите на сайт через Telegram-виджет.</p>
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl mt-2 transition-colors shadow-lg shadow-blue-500/20">
+            <button type="submit" class="btn btn-primary btn-block" style="padding:14px">
                 Сохранить изменения
             </button>
         </form>
 
-        <hr class="border-zinc-800 my-6">
-        
+        <hr class="my-6" style="border-color:var(--color-divider)">
+
         <form method="POST" onsubmit="return confirm('Вы уверены? Это удалит ваш аккаунт безвозвратно. Ваши схемы потеряют автора.');">
             <input type="hidden" name="action" value="delete_account">
-            <button type="submit" class="w-full bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 hover:border-red-500 py-3 rounded-xl transition-all font-medium flex justify-center items-center gap-2">
+            <button type="submit" class="btn btn-block justify-center" style="background:color-mix(in srgb, #ef4444 12%, transparent);color:#ff9d9d">
                 <i class="fa-solid fa-trash-can"></i> Удалить аккаунт
             </button>
         </form>
@@ -211,18 +211,18 @@ $avatar_class = $avatar_shape === 'square' ? 'rounded-2xl' : 'rounded-full';
 </div>
 <?php endif; ?>
 
-<h2 class="text-2xl font-semibold mb-6 flex items-center gap-3">
-    <i class="fa-solid fa-list-ul text-zinc-500"></i> Схемы автора
+<h2 class="mb-6 flex items-center gap-3" style="font-size:22px">
+    <i class="fa-solid fa-list-ul" style="opacity:.5"></i> Схемы автора
 </h2>
 
 <!-- Сетка схем пользователя -->
 <?php if(empty($user_schematics)): ?>
-    <div class="text-center py-16 bg-zinc-900/50 rounded-3xl border border-dashed border-zinc-700">
-        <i class="fa-regular fa-folder-open text-5xl text-zinc-600 mb-4"></i>
-        <p class="text-zinc-500">Этот пользователь еще не загрузил ни одной схемы.</p>
+    <div class="text-center" style="padding:56px 20px;background:var(--color-surface);border-radius:44px">
+        <div style="font-size:44px;opacity:.3;margin-bottom:14px"><i class="fa-regular fa-folder-open"></i></div>
+        <p style="opacity:.6">Этот пользователь еще не загрузил ни одной схемы.</p>
     </div>
 <?php else: ?>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <?php foreach($user_schematics as $schem): ?>
             <?php include __DIR__ . '/schematic_card.php'; ?>
         <?php endforeach; ?>
@@ -239,16 +239,16 @@ async function toggleSubscribe(authorId) {
     let currentCount = parseInt(countEl.innerText);
 
     // Моментально меняем визуал (Оптимистичный подход)
-    if (btn.classList.contains('bg-blue-600')) {
+    if (btn.classList.contains('btn-primary')) {
         // Становимся подписанными
-        btn.className = "px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-lg bg-zinc-800 text-zinc-300 hover:bg-red-500/20 hover:text-red-400 border border-transparent hover:border-red-500";
-        icon.className = "fa-solid fa-check mr-1";
+        btn.className = "btn btn-secondary";
+        icon.className = "fa-solid fa-check";
         text.innerText = "Вы подписаны";
         countEl.innerText = currentCount + 1;
     } else {
         // Отписываемся
-        btn.className = "px-5 py-2.5 rounded-xl text-sm font-semibold transition-colors shadow-lg bg-blue-600 text-white hover:bg-blue-500";
-        icon.className = "fa-solid fa-user-plus mr-1";
+        btn.className = "btn btn-primary";
+        icon.className = "fa-solid fa-user-plus";
         text.innerText = "Подписаться";
         countEl.innerText = Math.max(0, currentCount - 1);
     }
