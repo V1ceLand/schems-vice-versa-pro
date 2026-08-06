@@ -342,22 +342,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('uploadIcon').className = "fa-solid fa-cubes text-4xl text-emerald-400 mb-3";
         submitBtn.disabled = true;
 
+        // Некоторые файлы со сторонних сайтов содержат мусорные байты перед
+        // самим NBT-потоком (лишний перевод строки, BOM, обёртка конвертера).
+        // Ищем настоящий старт gzip/zlib/NBT в первых байтах и обрезаем всё до него.
+        function findNbtStart(bytes) {
+            const n = Math.min(bytes.length - 1, 32);
+            for (let i = 0; i < n; i++) {
+                if (bytes[i] === 0x1f && bytes[i + 1] === 0x8b) return i; // gzip
+                if (bytes[i] === 0x78 && [0x01, 0x5e, 0x9c, 0xda].includes(bytes[i + 1])) return i; // zlib
+                if ((bytes[i] === 0x0a || bytes[i] === 0x09) && i === 0) return i; // сырой Compound/List с самого начала
+            }
+            return -1;
+        }
+
         // .litematic почти всегда gzip, но встречаются файлы с нестандартной
-        // упаковкой (zlib/raw deflate/без сжатия) от сторонних конвертеров.
-        // Перебираем варианты вместо одной попытки с автоопределением.
+        // упаковкой (zlib/raw deflate/без сжатия) от сторонних конвертеров,
+        // либо с мусором перед потоком. Перебираем варианты буфера и сжатия
+        // вместо одной попытки с автоопределением.
         async function readNbtRobust(buffer) {
+            const bytes = new Uint8Array(buffer);
+            const start = findNbtStart(bytes);
+            const buffers = start > 0 ? [buffer.slice(start), buffer] : [buffer];
             const attempts = [undefined, "gzip", "zlib", "deflate-raw", null];
+
             let lastErr;
-            for (const compression of attempts) {
-                try {
-                    const opts = { endian: "big" };
-                    if (compression !== undefined) opts.compression = compression;
-                    return await NBT.read(buffer, opts);
-                } catch (e) {
-                    lastErr = e;
+            for (const buf of buffers) {
+                for (const compression of attempts) {
+                    try {
+                        const opts = { endian: "big" };
+                        if (compression !== undefined) opts.compression = compression;
+                        return await NBT.read(buf, opts);
+                    } catch (e) {
+                        lastErr = e;
+                    }
                 }
             }
             throw lastErr;
+        }
+
+        // Аккуратная заглушка вместо 3D-рендера, когда файл не удалось
+        // разобрать: изометрический кубик в стиле сайта + имя файла.
+        // Схема всё равно выглядит опрятно в каталоге, а не "сломанной".
+        function drawPlaceholderThumbnail(filename) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512; canvas.height = 384;
+            const ctx = canvas.getContext('2d');
+
+            const bg = ctx.createLinearGradient(0, 0, 0, 384);
+            bg.addColorStop(0, '#1e293b');
+            bg.addColorStop(1, '#0f172a');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, 512, 384);
+
+            const cx = 256, cy = 165, w = 72, h = 42;
+            const top = [cx, cy - h], right = [cx + w, cy - h / 2], bottom = [cx, cy + h], left = [cx - w, cy - h / 2], center = [cx, cy];
+
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#022c22';
+
+            ctx.fillStyle = '#6ee7b7';
+            ctx.beginPath(); ctx.moveTo(...left); ctx.lineTo(...top); ctx.lineTo(...right); ctx.lineTo(...center); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#059669';
+            ctx.beginPath(); ctx.moveTo(...left); ctx.lineTo(...center); ctx.lineTo(...bottom); ctx.lineTo(cx - w, cy + h / 2); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#10b981';
+            ctx.beginPath(); ctx.moveTo(...center); ctx.lineTo(...right); ctx.lineTo(cx + w, cy + h / 2); ctx.lineTo(...bottom); ctx.closePath(); ctx.fill(); ctx.stroke();
+
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '14px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Автопревью недоступно', 256, 300);
+
+            ctx.fillStyle = '#e2e8f0';
+            ctx.font = 'bold 15px sans-serif';
+            let name = filename.replace(/\.litematic$/i, '');
+            if (name.length > 42) name = name.slice(0, 39) + '…';
+            ctx.fillText(name, 256, 324);
+
+            return canvas.toDataURL('image/jpeg', 0.85);
         }
 
         try {
@@ -485,10 +549,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } catch (err) {
             // 3D-превью — это украшение, а не обязательное условие публикации.
             // Если NBT не удалось разобрать (нестандартный файл/сжатие),
-            // всё равно даём загрузить схематику, просто без картинки.
+            // подставляем нейтральную обложку и всё равно даём опубликовать.
             console.error(err);
-            document.getElementById('fileStatus').innerHTML = `<span class="text-amber-400 text-xs"><i class="fa-solid fa-triangle-exclamation"></i> Не удалось построить превью (${err.message}). Файл всё равно можно опубликовать.</span>`;
-            document.getElementById('thumbnail_base64').value = '';
+            const placeholder = drawPlaceholderThumbnail(file.name);
+            document.getElementById('thumbnail_base64').value = placeholder;
+
+            const previewImg = document.getElementById('previewImage');
+            previewImg.src = placeholder;
+            previewImg.classList.remove('opacity-0');
+            document.getElementById('previewPlaceholder').classList.add('hidden');
+
+            document.getElementById('fileStatus').innerHTML = '<span class="text-amber-400 text-xs"><i class="fa-solid fa-triangle-exclamation"></i> 3D-превью не построилось, использована стандартная обложка. Файл можно опубликовать.</span>';
             submitBtn.disabled = false;
         }
     });
