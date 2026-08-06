@@ -342,9 +342,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         document.getElementById('uploadIcon').className = "fa-solid fa-cubes text-4xl text-emerald-400 mb-3";
         submitBtn.disabled = true;
 
+        // .litematic почти всегда gzip, но встречаются файлы с нестандартной
+        // упаковкой (zlib/raw deflate/без сжатия) от сторонних конвертеров.
+        // Перебираем варианты вместо одной попытки с автоопределением.
+        async function readNbtRobust(buffer) {
+            const attempts = [undefined, "gzip", "zlib", "deflate-raw", null];
+            let lastErr;
+            for (const compression of attempts) {
+                try {
+                    const opts = { endian: "big" };
+                    if (compression !== undefined) opts.compression = compression;
+                    return await NBT.read(buffer, opts);
+                } catch (e) {
+                    lastErr = e;
+                }
+            }
+            throw lastErr;
+        }
+
         try {
             const buffer = await file.arrayBuffer();
-            const parsed = await NBT.read(buffer, { endian: "big" });
+            const parsed = await readNbtRobust(buffer);
             const regionsObj = findDeep(parsed, 'Regions') || findDeep(parsed, 'regions') || {};
             const regionNames = Object.keys(regionsObj);
             
@@ -465,9 +483,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             renderer.dispose();
 
         } catch (err) {
+            // 3D-превью — это украшение, а не обязательное условие публикации.
+            // Если NBT не удалось разобрать (нестандартный файл/сжатие),
+            // всё равно даём загрузить схематику, просто без картинки.
             console.error(err);
-            document.getElementById('fileStatus').innerHTML = `<span class="text-red-400 text-xs">Ошибка: ${err.message}</span>`;
-            submitBtn.disabled = true;
+            document.getElementById('fileStatus').innerHTML = `<span class="text-amber-400 text-xs"><i class="fa-solid fa-triangle-exclamation"></i> Не удалось построить превью (${err.message}). Файл всё равно можно опубликовать.</span>`;
+            document.getElementById('thumbnail_base64').value = '';
+            submitBtn.disabled = false;
         }
     });
 </script>

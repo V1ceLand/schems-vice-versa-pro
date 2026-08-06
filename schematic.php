@@ -429,6 +429,24 @@ async function rateSchematic(rating) {
     let clock = new THREE.Clock(), flySpeed = 15;
     const invisibleBlocks = ['air', 'light', 'barrier', 'structure_void', 'cave_air', 'void_air'];
 
+    // .litematic почти всегда gzip, но встречаются файлы с нестандартной
+    // упаковкой (zlib/raw deflate/без сжатия) от сторонних конвертеров.
+    // Перебираем варианты вместо одной попытки с автоопределением.
+    async function readNbtRobust(buffer) {
+        const attempts = [undefined, "gzip", "zlib", "deflate-raw", null];
+        let lastErr;
+        for (const compression of attempts) {
+            try {
+                const opts = { endian: "big" };
+                if (compression !== undefined) opts.compression = compression;
+                return await NBT.read(buffer, opts);
+            } catch (e) {
+                lastErr = e;
+            }
+        }
+        throw lastErr;
+    }
+
     async function fetchSchematic(url) {
         try {
             document.getElementById('loadingBar').style.width = '10%';
@@ -436,9 +454,9 @@ async function rateSchematic(rating) {
             if (!response.ok) throw new Error("Ошибка загрузки файла");
             document.getElementById('loadingBar').style.width = '40%';
             document.getElementById('loadingDesc').textContent = 'Чтение NBT...';
-            
+
             const buffer = await response.arrayBuffer();
-            currentParsed = await NBT.read(buffer, { endian: "big" });
+            currentParsed = await readNbtRobust(buffer);
             startViewer(currentParsed);
         } catch (err) {
             document.getElementById('loadingTitle').innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i> Ошибка';
