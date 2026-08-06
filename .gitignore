@@ -1,0 +1,5 @@
+.env
+*.log
+uploads/
+/vendor/
+.DS_Store
