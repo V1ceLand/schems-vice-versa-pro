@@ -33,16 +33,19 @@ if ($is_owner && $_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']
         
         $upd = $pdo->prepare("UPDATE users SET description = ?, contacts = ?, avatar_shape = ? WHERE id = ?");
         $upd->execute([$new_desc, $new_contacts, $new_shape, $current_user_id]);
-        
-        header("Location: profile.php?id=$current_user_id");
+
+        // Абсолютный путь: относительный "profile.php?id=.." резолвился браузером
+        // относительно текущего /user/{id}-{slug} и уводил на несуществующий
+        // /user/profile.php?id=.. (404).
+        header("Location: " . get_user_url($current_user_id, $_SESSION['username'] ?? $_SESSION['first_name'] ?? ''));
         exit;
-    } 
-    
+    }
+
     // 2. Обработка удаления аккаунта
     if ($_POST['action'] === 'delete_account') {
         $pdo->prepare("DELETE FROM users WHERE id = ?")->execute([$current_user_id]);
         session_destroy();
-        header("Location: index.php");
+        header("Location: /");
         exit;
     }
 }

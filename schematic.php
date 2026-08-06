@@ -21,7 +21,7 @@ $schem = $stmt->fetch();
 if (!$schem) {
     $page_title = "Схема не найдена | SchemHub";
     require_once __DIR__ . '/header.php';
-    echo "<div class='text-center py-20 text-xl text-red-400'>Схема не найдена или была удалена.</div>";
+    echo "<div class='text-center py-20 text-xl' style='color:#ff9d9d'>Схема не найдена или была удалена.</div>";
     require_once __DIR__ . '/footer.php';
     exit;
 }
@@ -118,88 +118,84 @@ $avatar_class = ($schem['avatar_shape'] === 'square') ? 'rounded-xl' : 'rounded-
 ?>
 
 <!-- Блок информации о схеме -->
-<div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 mb-8 flex flex-col md:flex-row justify-between items-start gap-8">
+<div class="elev-sm flex flex-col md:flex-row justify-between items-start gap-8 mb-6" style="background:var(--color-surface);border-radius:40px;padding:32px">
     <div class="flex-1 w-full">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-            <div class="flex items-center gap-4">
-                <h1 class="text-3xl font-bold text-white"><?= htmlspecialchars($schem['title']) ?></h1>
+            <div class="flex items-center gap-3 flex-wrap">
+                <h1 style="font-size:clamp(24px,3.2vw,36px);line-height:1.05"><?= htmlspecialchars($schem['title']) ?></h1>
                 <?php if(!empty($schem['version_label'])): ?>
-                    <span class="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-xl text-sm font-bold border border-emerald-500/20">v<?= htmlspecialchars($schem['version_label']) ?></span>
+                    <span class="tag tag-accent-2">v<?= htmlspecialchars($schem['version_label']) ?></span>
                 <?php endif; ?>
             </div>
-            
-            <div class="flex items-center gap-3 bg-zinc-950 px-4 py-2 rounded-2xl border border-zinc-800">
-                <div class="text-amber-400 text-lg font-bold" id="avgRating"><?= number_format($schem['avg_rating'], 1) ?></div>
+
+            <div class="flex items-center gap-3" style="background:var(--color-bg);padding:9px 16px;border-radius:999px">
+                <div class="text-lg font-bold" style="color:var(--color-accent)" id="avgRating"><?= number_format($schem['avg_rating'], 1) ?></div>
                 <div class="flex text-sm">
                     <?php for($i=1; $i<=5; $i++): ?>
-                        <i class="<?= $i <= round($schem['avg_rating']) ? 'fa-solid text-amber-400' : 'fa-regular text-zinc-600' ?> fa-star"></i>
+                        <i class="<?= $i <= round($schem['avg_rating']) ? 'fa-solid' : 'fa-regular' ?> fa-star" style="color:<?= $i <= round($schem['avg_rating']) ? 'var(--color-accent)' : 'var(--color-neutral-400)' ?>"></i>
                     <?php endfor; ?>
                 </div>
-                <div class="text-zinc-500 text-xs">(<span id="ratingCount"><?= $schem['rating_count'] ?></span> оценок)</div>
+                <div class="text-xs" style="opacity:.55">(<span id="ratingCount"><?= $schem['rating_count'] ?></span> оценок)</div>
             </div>
         </div>
-        
+
         <div class="flex flex-wrap gap-2 mb-6">
             <?php if(!empty($schem['style']) && isset($BUILD_STYLES[$schem['style']])): ?>
-                <span class="px-3 py-1 bg-purple-500/10 text-purple-400 rounded-lg text-xs font-bold border border-purple-500/20 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-palette"></i> <?= htmlspecialchars($BUILD_STYLES[$schem['style']]) ?>
-                </span>
+                <span class="tag tag-accent"><i class="fa-solid fa-palette"></i> <?= htmlspecialchars($BUILD_STYLES[$schem['style']]) ?></span>
             <?php endif; ?>
-            
+
             <?php if(!empty($schem['type']) && isset($BUILD_TYPES[$schem['type']])): ?>
-                <span class="px-3 py-1 bg-blue-500/10 text-blue-400 rounded-lg text-xs font-bold border border-blue-500/20 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-layer-group"></i> <?= htmlspecialchars($BUILD_TYPES[$schem['type']]) ?>
-                </span>
+                <span class="tag tag-accent-2"><i class="fa-solid fa-layer-group"></i> <?= htmlspecialchars($BUILD_TYPES[$schem['type']]) ?></span>
             <?php endif; ?>
         </div>
-        
-        <div class="bg-zinc-950/50 p-5 rounded-2xl border border-zinc-800 text-zinc-300 leading-relaxed mb-6 whitespace-pre-wrap"><?= htmlspecialchars($schem['description']) ?></div>
-        
+
+        <div class="mb-6 whitespace-pre-wrap" style="background:var(--color-bg);border-radius:24px;padding:20px;line-height:1.65;opacity:.85"><?= htmlspecialchars($schem['description']) ?></div>
+
         <div class="flex flex-wrap items-center gap-6">
-            <a href="<?= get_user_url($schem['user_id'], $schem['username'] ?? $schem['first_name']) ?>" class="flex items-center gap-3 hover:bg-zinc-800 p-2 pr-4 rounded-xl transition-colors border border-transparent hover:border-zinc-700">
-                <img src="<?= htmlspecialchars($author_avatar) ?>" class="w-10 h-10 <?= $avatar_class ?> border border-zinc-700 object-cover">
+            <a href="<?= get_user_url($schem['user_id'], $schem['username'] ?? $schem['first_name']) ?>" class="flex items-center gap-3 transition-colors" style="padding:6px 14px 6px 6px;border-radius:16px">
+                <img src="<?= htmlspecialchars($author_avatar) ?>" class="w-10 h-10 <?= $avatar_class ?> object-cover" style="box-shadow:inset 0 0 0 1px var(--color-divider)">
                 <div>
-                    <div class="text-xs text-zinc-500 uppercase font-bold tracking-wider mb-0.5">Автор</div>
-                    <div class="text-blue-400 font-semibold leading-none">@<?= htmlspecialchars($schem['username'] ?? $schem['first_name']) ?></div>
+                    <div class="text-xs uppercase font-bold tracking-wider mb-0.5" style="opacity:.5">Автор</div>
+                    <div class="font-semibold leading-none" style="color:var(--color-accent-700)">@<?= htmlspecialchars($schem['username'] ?? $schem['first_name']) ?></div>
                 </div>
             </a>
-            
-            <div class="hidden md:block h-10 w-px bg-zinc-800"></div>
-            
-            <div class="flex gap-6 text-sm font-mono text-zinc-400">
-                <span title="Просмотры"><i class="fa-solid fa-eye text-zinc-600 mr-2 text-lg"></i><?= $schem['views'] + 1 ?></span>
-                <span title="Уникальные скачивания"><i class="fa-solid fa-download text-emerald-600 mr-2 text-lg"></i><?= $schem['real_downloads'] ?></span>
-                <span title="Размер файла"><i class="fa-solid fa-hard-drive text-blue-600 mr-2 text-lg"></i><?= round($schem['file_size'] / 1024, 1) ?> KB</span>
+
+            <div class="hidden md:block h-10 w-px" style="background:var(--color-divider)"></div>
+
+            <div class="flex gap-6 text-sm font-mono" style="opacity:.65">
+                <span title="Просмотры"><i class="fa-solid fa-eye mr-2 text-lg" style="opacity:.6"></i><?= $schem['views'] + 1 ?></span>
+                <span title="Уникальные скачивания"><i class="fa-solid fa-download mr-2 text-lg" style="color:var(--color-accent-2-500)"></i><?= $schem['real_downloads'] ?></span>
+                <span title="Размер файла"><i class="fa-solid fa-hard-drive mr-2 text-lg" style="opacity:.6"></i><?= round($schem['file_size'] / 1024, 1) ?> KB</span>
             </div>
         </div>
     </div>
-    
-    <div class="w-full md:w-auto flex flex-col gap-3 shrink-0">
+
+    <div class="w-full md:w-auto flex flex-col gap-3 shrink-0" style="min-width:260px">
         <!-- Кнопка скачивания с ЧПУ маршрутом -->
-        <a href="/download/<?= $schem['id'] ?>" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-8 rounded-2xl transition-all shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] flex items-center justify-center gap-3 hover:-translate-y-1">
+        <a href="/download/<?= $schem['id'] ?>" class="btn btn-primary btn-block" style="padding:16px">
             <i class="fa-solid fa-download text-xl"></i>
             <div class="text-left">
                 <div class="leading-none mb-1">Скачать .litematic</div>
                 <div class="text-[10px] font-normal opacity-70">Последняя версия</div>
             </div>
         </a>
-        <div class="text-center text-xs text-zinc-500 font-mono mb-4"><?= htmlspecialchars(basename($schem['file_name'])) ?></div>
+        <div class="text-center text-xs font-mono mb-2" style="opacity:.5"><?= htmlspecialchars(basename($schem['file_name'])) ?></div>
 
         <!-- Поставить оценку (Для авторизованных) -->
         <?php if($current_user_id && !$is_owner): ?>
-            <div class="bg-zinc-950 border border-zinc-800 p-4 rounded-2xl text-center">
-                <div class="text-xs text-zinc-400 font-medium mb-2">Оценить постройку:</div>
+            <div class="text-center" style="background:var(--color-bg);border-radius:22px;padding:16px">
+                <div class="text-xs font-medium mb-2" style="opacity:.6">Оценить постройку:</div>
                 <div class="flex justify-center gap-2 flex-row-reverse" id="starContainer">
                     <?php for($i=5; $i>=1; $i--): ?>
-                        <i class="rating-star cursor-pointer text-2xl transition-colors peer 
-                                  <?= $i <= $user_rating ? 'fa-solid text-amber-400' : 'fa-regular text-zinc-600 hover:text-amber-400 peer-hover:text-amber-400' ?>" 
+                        <i class="rating-star cursor-pointer text-2xl transition-colors peer <?= $i <= $user_rating ? 'fa-solid' : 'fa-regular' ?>"
+                           style="color:<?= $i <= $user_rating ? 'var(--color-accent)' : 'var(--color-neutral-400)' ?>"
                            data-val="<?= $i ?>" onclick="rateSchematic(<?= $i ?>)"></i>
                     <?php endfor; ?>
                 </div>
-                <div id="ratingThanks" class="text-xs text-emerald-400 mt-2 h-4 opacity-0 transition-opacity">Спасибо за оценку!</div>
+                <div id="ratingThanks" class="text-xs mt-2 h-4 opacity-0 transition-opacity" style="color:var(--color-accent-2-600)">Спасибо за оценку!</div>
             </div>
         <?php elseif(!$current_user_id): ?>
-            <div class="text-xs text-zinc-500 text-center bg-zinc-950 p-3 rounded-xl border border-zinc-800">
+            <div class="text-xs text-center" style="background:var(--color-bg);border-radius:16px;padding:12px;opacity:.6">
                 Авторизуйтесь, чтобы оценить
             </div>
         <?php endif; ?>
@@ -207,16 +203,16 @@ $avatar_class = ($schem['avatar_shape'] === 'square') ? 'rounded-xl' : 'rounded-
         <!-- Инструменты автора -->
         <?php if($is_owner): ?>
             <div class="mt-2 space-y-2">
-                <a href="/upload?update_id=<?= $id ?>" class="block w-full text-center bg-zinc-800 hover:bg-emerald-600 text-white py-2.5 rounded-xl text-sm font-medium transition-colors">
-                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> Опубликовать новую версию
+                <a href="/upload?update_id=<?= $id ?>" class="btn btn-secondary btn-block">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Опубликовать новую версию
                 </a>
-                <a href="/edit.php?id=<?= $id ?>" class="block w-full text-center bg-zinc-800 hover:bg-blue-600 text-white py-2.5 rounded-xl text-sm font-medium transition-colors border border-zinc-700">
-                    <i class="fa-solid fa-pen-to-square mr-1"></i> Редактировать параметры
+                <a href="/edit.php?id=<?= $id ?>" class="btn btn-secondary btn-block">
+                    <i class="fa-solid fa-pen-to-square"></i> Редактировать параметры
                 </a>
                 <form method="POST" onsubmit="return confirm('Вы уверены? Это удалит ЭТУ версию навсегда!');">
                     <input type="hidden" name="action" value="delete_schematic">
-                    <button type="submit" class="w-full text-center bg-zinc-800 hover:bg-red-600 text-red-400 hover:text-white py-2.5 rounded-xl text-sm font-medium transition-colors border border-transparent hover:border-red-500">
-                        <i class="fa-solid fa-trash mr-1"></i> Удалить эту версию
+                    <button type="submit" class="btn btn-block justify-center" style="background:color-mix(in srgb, #ef4444 12%, transparent);color:#ff9d9d">
+                        <i class="fa-solid fa-trash"></i> Удалить эту версию
                     </button>
                 </form>
             </div>
@@ -226,36 +222,36 @@ $avatar_class = ($schem['avatar_shape'] === 'square') ? 'rounded-xl' : 'rounded-
 
 <!-- БЛОК ВЕРСИЙ -->
 <?php if(count($all_versions) > 1): ?>
-    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 md:p-8 mb-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold flex items-center gap-3">
-                <i class="fa-solid fa-clock-rotate-left text-blue-500"></i> История версий
+    <div class="mb-6" style="background:var(--color-surface);border-radius:36px;padding:28px">
+        <div class="flex items-center justify-between mb-5 flex-wrap gap-3">
+            <h2 class="flex items-center gap-3" style="font-size:19px">
+                <i class="fa-solid fa-clock-rotate-left" style="color:var(--color-accent)"></i> История версий
             </h2>
             <?php if(!$is_latest): ?>
-                <div class="bg-amber-500/10 text-amber-500 text-xs font-bold px-3 py-1 rounded-full border border-amber-500/20 animate-pulse">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> Доступна новая версия
+                <div class="tag" style="background:color-mix(in srgb, #f59e0b 15%, transparent);color:#fbbf6a;animation:shBreathe 2.4s ease-in-out infinite">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Доступна новая версия
                 </div>
             <?php endif; ?>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <?php foreach($all_versions as $v): ?>
-                <a href="<?= get_schematic_url($v['id'], $v['title']) ?>" 
-                   class="p-4 rounded-2xl border transition-all flex items-center justify-between group <?= $v['id'] == $id ? 'bg-blue-600/10 border-blue-500/50' : 'bg-zinc-950 border-zinc-800 hover:border-zinc-600' ?>">
+                <a href="<?= get_schematic_url($v['id'], $v['title']) ?>"
+                   class="flex items-center justify-between" style="padding:14px 16px;border-radius:20px;<?= $v['id'] == $id ? 'background:color-mix(in srgb, var(--color-accent) 12%, transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--color-accent) 40%, transparent)' : 'background:var(--color-bg);box-shadow:inset 0 0 0 1px var(--color-divider)' ?>">
                     <div class="overflow-hidden">
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">v<?= htmlspecialchars($v['version_label'] ?? '1.0') ?></span>
+                            <span class="tag tag-neutral" style="padding:3px 9px;font-size:10px">v<?= htmlspecialchars($v['version_label'] ?? '1.0') ?></span>
                             <?php if($v['id'] == $all_versions[0]['id']): ?>
-                                <span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded uppercase font-black">Latest</span>
+                                <span class="tag tag-accent-2" style="padding:3px 9px;font-size:10px">Latest</span>
                             <?php endif; ?>
                         </div>
-                        <div class="font-bold text-white group-hover:text-blue-400 transition-colors truncate text-sm"><?= htmlspecialchars($v['title']) ?></div>
-                        <div class="text-[10px] text-zinc-500 font-mono mt-1"><?= date('d.m.Y', strtotime($v['created_at'])) ?></div>
+                        <div class="font-bold truncate text-sm transition-colors"><?= htmlspecialchars($v['title']) ?></div>
+                        <div class="text-[10px] font-mono mt-1" style="opacity:.5"><?= date('d.m.Y', strtotime($v['created_at'])) ?></div>
                     </div>
                     <?php if($v['id'] == $id): ?>
-                        <i class="fa-solid fa-circle-check text-blue-500"></i>
+                        <i class="fa-solid fa-circle-check" style="color:var(--color-accent)"></i>
                     <?php else: ?>
-                        <i class="fa-solid fa-chevron-right text-zinc-700 group-hover:text-zinc-400 transition-all group-hover:translate-x-1"></i>
+                        <i class="fa-solid fa-chevron-right" style="opacity:.3"></i>
                     <?php endif; ?>
                 </a>
             <?php endforeach; ?>
@@ -293,64 +289,64 @@ async function rateSchematic(rating) {
 <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/controls/PointerLockControls.js"></script>
 
 <div id="view-viewer" class="relative">
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div class="bg-zinc-900 rounded-3xl p-6" id="sizes">
-            <div class="text-center py-6 text-zinc-500 animate-pulse">Анализ файла...</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div style="background:var(--color-surface);border-radius:32px;padding:22px" id="sizes">
+            <div class="text-center py-6" style="opacity:.5;animation:shBreathe 2.4s ease-in-out infinite">Анализ файла...</div>
         </div>
-        <div class="bg-zinc-900 rounded-3xl p-6 col-span-2">
-            <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                <i class="fa-solid fa-layer-group text-emerald-400"></i> Метаданные и Регионы
+        <div class="col-span-2" style="background:var(--color-surface);border-radius:32px;padding:22px">
+            <h2 class="mb-4 flex items-center gap-2" style="font-size:16px">
+                <i class="fa-solid fa-layer-group" style="color:var(--color-accent)"></i> Метаданные и Регионы
             </h2>
-            <div id="metadata" class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-4 text-zinc-500">Загрузка...</div>
+            <div id="metadata" class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm mb-4" style="opacity:.55">Загрузка...</div>
             <div id="regions" class="grid grid-cols-1 gap-2"></div>
         </div>
     </div>
 
     <!-- 3D Контейнер -->
-    <div class="bg-zinc-900 rounded-3xl p-6 mb-8">
+    <div class="mb-6" style="background:var(--color-surface);border-radius:32px;padding:22px">
         <div class="flex flex-wrap gap-3 items-center justify-between mb-4">
-            <h2 class="text-lg font-semibold flex items-center gap-2">
-                <i class="fa-solid fa-cube text-purple-400"></i> 3D модель схемы
+            <h2 class="flex items-center gap-2" style="font-size:16px">
+                <i class="fa-solid fa-cube" style="color:var(--color-accent-2-500)"></i> 3D модель схемы
             </h2>
             <div class="flex flex-wrap items-center gap-2">
-                <button onclick="resetViewerCamera()" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors" title="Вернуть камеру к исходному ракурсу">
-                    <i class="fa-solid fa-camera-rotate text-emerald-400"></i> Ракурс
+                <button onclick="resetViewerCamera()" class="btn btn-secondary" style="padding:8px 14px;font-size:12px" title="Вернуть камеру к исходному ракурсу">
+                    <i class="fa-solid fa-camera-rotate"></i> Ракурс
                 </button>
-                <button onclick="toggleAutoRotate()" id="autoRotateBtn" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors">
-                    <i class="fa-solid fa-rotate text-sky-400"></i> <span id="autoRotateText">Автоповорот: ВЫКЛ</span>
+                <button onclick="toggleAutoRotate()" id="autoRotateBtn" class="btn btn-secondary" style="padding:8px 14px;font-size:12px">
+                    <i class="fa-solid fa-rotate"></i> <span id="autoRotateText">Автоповорот: ВЫКЛ</span>
                 </button>
-                <button onclick="toggleBoundingBox()" id="toggleBBoxBtn" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors">
+                <button onclick="toggleBoundingBox()" id="toggleBBoxBtn" class="btn btn-secondary" style="padding:8px 14px;font-size:12px">
                     <i class="fa-solid fa-border-all text-pink-400"></i> <span id="bboxText">Границы: ВКЛ</span>
                 </button>
-                <button onclick="toggleTooltip()" id="tooltipBtn" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors">
+                <button onclick="toggleTooltip()" id="tooltipBtn" class="btn btn-secondary" style="padding:8px 14px;font-size:12px">
                     <i class="fa-solid fa-message text-indigo-400" id="tooltipIcon"></i> <span id="tooltipText">Подсказка: ВКЛ</span>
                 </button>
-                <div class="flex items-center gap-2 bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-1.5 h-8">
-                    <i class="fa-solid fa-gauge-high text-amber-400 text-xs"></i>
-                    <span class="text-xs font-medium text-zinc-300">Скорость:</span>
-                    <input type="range" id="speedSlider" min="0.1" max="3.0" step="0.1" value="1.0" class="w-20 accent-amber-500 h-1.5 bg-zinc-950 rounded-lg appearance-none cursor-pointer">
-                    <input type="number" id="speedInput" min="0.1" max="3.0" step="0.1" value="1.0" class="w-12 bg-zinc-950 border border-zinc-700 text-white text-xs rounded px-1 py-0.5 text-center outline-none focus:border-amber-500 transition-colors">
-                    <span class="text-xs text-zinc-500">x</span>
+                <div class="flex items-center gap-2" style="background:var(--color-bg);border-radius:14px;padding:6px 12px;height:32px">
+                    <i class="fa-solid fa-gauge-high text-xs" style="color:var(--color-accent)"></i>
+                    <span class="text-xs font-medium" style="opacity:.7">Скорость:</span>
+                    <input type="range" id="speedSlider" min="0.1" max="3.0" step="0.1" value="1.0" class="w-20 h-1.5 rounded-lg appearance-none cursor-pointer" style="accent-color:var(--color-accent)">
+                    <input type="number" id="speedInput" min="0.1" max="3.0" step="0.1" value="1.0" class="input w-12 text-xs text-center" style="padding:2px 4px;border-radius:8px">
+                    <span class="text-xs" style="opacity:.5">x</span>
                 </div>
-                <button onclick="toggleFlightMode()" id="flightModeBtn" class="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors" title="Свободный: летим куда смотрим. Плоский: высота меняется только на Пробел/Shift">
-                    <i class="fa-solid fa-arrows-up-down-left-right text-emerald-400" id="modeIcon"></i> <span id="flightModeText">Режим: Свободный</span>
+                <button onclick="toggleFlightMode()" id="flightModeBtn" class="btn btn-secondary" style="padding:8px 14px;font-size:12px" title="Свободный: летим куда смотрим. Плоский: высота меняется только на Пробел/Shift">
+                    <i class="fa-solid fa-arrows-up-down-left-right" style="color:var(--color-accent-2-500)" id="modeIcon"></i> <span id="flightModeText">Режим: Свободный</span>
                 </button>
-                <button onclick="enterFlyMode()" class="px-4 py-2 bg-sky-500/20 text-sky-400 hover:bg-sky-500/30 rounded-xl text-xs font-medium flex items-center gap-2 transition-colors">
+                <button onclick="enterFlyMode()" class="btn btn-primary" style="padding:8px 14px;font-size:12px">
                     <i class="fa-solid fa-plane"></i> Камера (WASD)
                 </button>
             </div>
         </div>
-        
-        <div id="threeContainer" class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07111f] shadow-inner shadow-black/40" style="height: min(68vh, 680px); min-height: 440px;">
+
+        <div id="threeContainer" class="relative overflow-hidden shadow-inner" style="height: min(68vh, 680px); min-height: 440px; border-radius:24px; background:#0f0d0a; box-shadow: inset 0 0 0 1px var(--color-divider);">
             <canvas id="threeCanvas" class="w-full h-full outline-none" style="image-rendering: pixelated;"></canvas>
-            
-            <div class="absolute top-4 left-4 bg-zinc-950/80 px-5 py-3 rounded-2xl font-mono text-xs flex gap-8 pointer-events-none z-10 shadow-lg border border-white/10 backdrop-blur-md">
-                <div>X <span id="dimX" class="text-sky-400 font-bold">0</span></div>
-                <div>Y <span id="dimY" class="text-sky-400 font-bold">0</span></div>
-                <div>Z <span id="dimZ" class="text-sky-400 font-bold">0</span></div>
+
+            <div class="absolute top-4 left-4 px-5 py-3 font-mono text-xs flex gap-8 pointer-events-none z-10" style="background:color-mix(in srgb, var(--color-bg) 85%, transparent);border-radius:18px;box-shadow:var(--shadow-md);backdrop-filter:blur(8px)">
+                <div>X <span id="dimX" class="font-bold" style="color:var(--color-accent-700)">0</span></div>
+                <div>Y <span id="dimY" class="font-bold" style="color:var(--color-accent-700)">0</span></div>
+                <div>Z <span id="dimZ" class="font-bold" style="color:var(--color-accent-700)">0</span></div>
             </div>
 
-            <div id="blockTooltip" class="hidden absolute bottom-4 left-4 bg-zinc-950/90 backdrop-blur-md p-4 rounded-2xl z-20 pointer-events-none flex gap-5 items-center border border-zinc-800 shadow-2xl transition-opacity duration-200">
+            <div id="blockTooltip" class="hidden absolute bottom-4 left-4 backdrop-blur-md p-4 z-20 pointer-events-none flex gap-5 items-center transition-opacity duration-200" style="background:color-mix(in srgb, var(--color-bg) 92%, transparent);border-radius:18px;box-shadow:var(--shadow-lg)">
                 <div class="w-12 h-12 relative flex-shrink-0" style="perspective: 1000px;">
                     <div class="w-full h-full relative" style="transform-style: preserve-3d; transform: rotateX(-30deg) rotateY(-45deg);">
                         <div id="tt-top" class="absolute inset-0 border border-black/30" style="transform: rotateX(90deg) translateZ(24px); image-rendering: pixelated; background-size: cover; filter: brightness(1.15);"></div>
@@ -358,14 +354,14 @@ async function rateSchematic(rating) {
                         <div id="tt-right" class="absolute inset-0 border border-black/30" style="transform: rotateY(90deg) translateZ(24px); image-rendering: pixelated; background-size: cover; filter: brightness(0.75);"></div>
                     </div>
                 </div>
-                <div class="flex flex-col text-zinc-300 pointer-events-none min-w-[120px]">
-                    <div id="tt-name" class="font-bold text-white text-sm tracking-wide leading-tight">Block Name</div>
-                    <div id="tt-id" class="text-zinc-500 text-[10px] mb-1.5">minecraft:block</div>
+                <div class="flex flex-col pointer-events-none min-w-[120px]">
+                    <div id="tt-name" class="font-bold text-sm tracking-wide leading-tight">Block Name</div>
+                    <div id="tt-id" class="text-[10px] mb-1.5" style="opacity:.5">minecraft:block</div>
                     <div class="flex gap-4 text-xs">
-                        <div title="Количество"><i class="fa-solid fa-cubes text-emerald-500 mr-1.5"></i><span id="tt-count" class="font-mono text-emerald-400 font-semibold">0</span></div>
-                        <div title="Координаты блока"><i class="fa-solid fa-location-dot text-sky-500 mr-1.5"></i><span id="tt-coords" class="font-mono text-sky-400 font-semibold">0, 0, 0</span></div>
+                        <div title="Количество"><i class="fa-solid fa-cubes mr-1.5" style="color:var(--color-accent-2-500)"></i><span id="tt-count" class="font-mono font-semibold" style="color:var(--color-accent-2-600)">0</span></div>
+                        <div title="Координаты блока"><i class="fa-solid fa-location-dot mr-1.5" style="color:var(--color-accent-600)"></i><span id="tt-coords" class="font-mono font-semibold" style="color:var(--color-accent-700)">0, 0, 0</span></div>
                     </div>
-                    <div class="mt-1.5 text-[10px] text-zinc-500">Ctrl+C — скопировать ID блока</div>
+                    <div class="mt-1.5 text-[10px]" style="opacity:.5">Ctrl+C — скопировать ID блока</div>
                 </div>
             </div>
 
@@ -374,39 +370,39 @@ async function rateSchematic(rating) {
                 <div class="absolute w-0.5 h-3 bg-white/70 shadow-[0_0_2px_black]"></div>
             </div>
 
-            <div id="loading3D" class="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-500">
-                <div class="bg-zinc-900 border border-zinc-700 p-6 rounded-2xl text-center w-80 shadow-2xl">
-                    <h3 id="loadingTitle" class="text-sm font-bold mb-2 text-white flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-spinner fa-spin text-blue-500"></i> Загрузка с сервера...
+            <div id="loading3D" class="absolute inset-0 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-500" style="background:color-mix(in srgb, var(--color-bg) 85%, transparent)">
+                <div class="elev-lg text-center w-80" style="background:var(--color-surface);border-radius:26px;padding:24px">
+                    <h3 id="loadingTitle" class="text-sm font-bold mb-2 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-spinner fa-spin" style="color:var(--color-accent)"></i> Загрузка с сервера...
                     </h3>
-                    <p id="loadingDesc" class="text-zinc-400 text-xs mb-3 font-mono">Скачивание файла</p>
-                    <div class="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
-                        <div id="loadingBar" class="h-full bg-blue-500 w-0 transition-all duration-300"></div>
+                    <p id="loadingDesc" class="text-xs mb-3 font-mono" style="opacity:.6">Скачивание файла</p>
+                    <div class="w-full h-1.5 rounded-full overflow-hidden" style="background:var(--color-bg)">
+                        <div id="loadingBar" class="h-full w-0 transition-all duration-300" style="background:var(--color-accent)"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <p class="text-center text-xs text-zinc-500 mt-3">Все регионы схемы собраны в одной сцене. ЛКМ = вращать • ПКМ = двигать • Колёсико = зум • Камера WASD: выход на ESC.</p>
+        <p class="text-center text-xs mt-3" style="opacity:.5">Все регионы схемы собраны в одной сцене. ЛКМ = вращать • ПКМ = двигать • Колёсико = зум • Камера WASD: выход на ESC.</p>
     </div>
 
     <!-- 2D Превью -->
-    <div class="bg-zinc-900 rounded-3xl p-6">
-        <h2 class="text-lg font-semibold flex items-center gap-2 mb-4">
-            <i class="fa-solid fa-layer-group text-rose-400"></i> 2D превью (по слоям)
+    <div style="background:var(--color-surface);border-radius:32px;padding:22px">
+        <h2 class="flex items-center gap-2 mb-4" style="font-size:16px">
+            <i class="fa-solid fa-layer-group" style="color:var(--color-accent-600)"></i> 2D превью (по слоям)
         </h2>
         <div class="flex justify-center mb-6">
             <div id="layerCanvasWrap" class="relative inline-block">
-                <canvas id="previewCanvas" width="560" height="560" style="image-rendering: pixelated; border-radius: 16px; background: #0f172a;"></canvas>
-                <div id="layerTooltip" class="hidden absolute z-20 min-w-48 pointer-events-none rounded-xl border border-white/10 bg-zinc-950/95 p-3 text-left shadow-2xl backdrop-blur-md">
-                    <div class="flex items-center gap-3"><div id="layerBlockIcon" class="h-9 w-9 rounded-lg border border-white/10 bg-zinc-800 bg-cover" style="image-rendering:pixelated"></div><div><div id="layerBlockName" class="text-sm font-bold text-white">Block</div><div id="layerBlockId" class="text-[10px] text-zinc-400">minecraft:block</div></div></div>
-                    <div id="layerBlockCoords" class="mt-2 font-mono text-[11px] text-emerald-300"></div><div class="mt-1 text-[10px] text-zinc-500">Ctrl+C — скопировать ID</div>
+                <canvas id="previewCanvas" width="560" height="560" style="image-rendering: pixelated; border-radius: 20px; background: var(--color-bg);"></canvas>
+                <div id="layerTooltip" class="hidden absolute z-20 min-w-48 pointer-events-none p-3 text-left backdrop-blur-md" style="background:color-mix(in srgb, var(--color-bg) 95%, transparent);border-radius:18px;box-shadow:var(--shadow-lg)">
+                    <div class="flex items-center gap-3"><div id="layerBlockIcon" class="h-9 w-9 bg-cover" style="border-radius:10px;background-color:var(--color-neutral-200);image-rendering:pixelated"></div><div><div id="layerBlockName" class="text-sm font-bold">Block</div><div id="layerBlockId" class="text-[10px]" style="opacity:.55">minecraft:block</div></div></div>
+                    <div id="layerBlockCoords" class="mt-2 font-mono text-[11px]" style="color:var(--color-accent-2-500)"></div><div class="mt-1 text-[10px]" style="opacity:.5">Ctrl+C — скопировать ID</div>
                 </div>
             </div>
         </div>
-        <div class="flex items-center gap-4 px-4 bg-zinc-950 p-4 rounded-2xl border border-zinc-800">
-            <span class="text-sm font-medium text-zinc-400 w-16">Слой Y</span>
-            <input type="range" id="ySlider" min="0" max="100" value="0" class="flex-1 accent-blue-500 cursor-pointer" disabled>
-            <span id="currentY" class="font-mono text-lg font-bold w-12 text-right text-blue-400">0</span>
+        <div class="flex items-center gap-4 px-4" style="background:var(--color-bg);border-radius:22px;padding:16px">
+            <span class="text-sm font-medium w-16" style="opacity:.6">Слой Y</span>
+            <input type="range" id="ySlider" min="0" max="100" value="0" class="flex-1 cursor-pointer" style="accent-color:var(--color-accent)" disabled>
+            <span id="currentY" class="font-mono text-lg font-bold w-12 text-right" style="color:var(--color-accent-700)">0</span>
         </div>
     </div>
 </div>
