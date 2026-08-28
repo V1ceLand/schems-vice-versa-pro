@@ -12,22 +12,45 @@
  *     --image=https://staticfiles.warthunder.com/... \
  *     --text-file=/tmp/post.txt
  *
- *   php tools/wt_news/publish.php --url=... --image=... --text-file=... --dry-run
+ * Несколько фото уходят альбомом (до 10, подпись на первом):
+ *   php tools/wt_news/publish.php --url=... --images=url1,url2,url3 --text-file=...
+ *
+ * Проверка без отправки: добавьте --dry-run
  */
 
 require __DIR__ . '/lib.php';
 
-$options = getopt('', ['url:', 'image:', 'text-file:', 'title::', 'dry-run', 'no-state', 'channel::']);
+$options = getopt('', ['url:', 'image:', 'images:', 'text-file:', 'title::', 'dry-run', 'no-state', 'channel::']);
 
-foreach (['url', 'image', 'text-file'] as $required) {
+foreach (['url', 'text-file'] as $required) {
     if (empty($options[$required])) {
         fwrite(STDERR, "Не хватает --{$required}\n");
         exit(2);
     }
 }
 
+// Картинки: повторяемый --image и/или --images со списком через запятую.
+$imageUrls = [];
+foreach ((array) ($options['image'] ?? []) as $one) {
+    $imageUrls[] = trim((string) $one);
+}
+foreach (explode(',', (string) ($options['images'] ?? '')) as $one) {
+    if (trim($one) !== '') {
+        $imageUrls[] = trim($one);
+    }
+}
+$imageUrls = array_values(array_unique(array_filter($imageUrls)));
+
+if ($imageUrls === []) {
+    fwrite(STDERR, "Не хватает --image или --images\n");
+    exit(2);
+}
+if (count($imageUrls) > 10) {
+    // Telegram не принимает альбом больше чем из 10 медиа.
+    $imageUrls = array_slice($imageUrls, 0, 10);
+}
+
 $sourceUrl = (string) $options['url'];
-$imageUrl  = (string) $options['image'];
 $textFile  = (string) $options['text-file'];
 $dryRun    = array_key_exists('dry-run', $options);
 
@@ -64,7 +87,7 @@ $token   = wt_env('TG_BOT_TOKEN');
 $channel = $options['channel'] ?? wt_env('TG_NEWS_CHANNEL');
 
 if ($dryRun) {
-    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nФото: {$imageUrl}\nИсточник: {$sourceUrl}\n--- подпись (" . mb_strlen($caption) . " симв.) ---\n{$caption}\n");
+    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nФото (" . count($imageUrls) . "):\n  " . implode("\n  ", $imageUrls) . "\nИсточник: {$sourceUrl}\n--- подпись (" . mb_strlen($caption) . " симв.) ---\n{$caption}\n");
     if ($tail !== null) {
         fwrite(STDOUT, "--- продолжение отдельным сообщением (" . mb_strlen($tail) . " симв.) ---\n{$tail}\n");
     }
@@ -102,47 +125,104 @@ function tg_call(string $token, string $method, array $params, int $timeout = 60
     return [(bool) ($decoded['ok'] ?? false), $decoded];
 }
 
-// Картинку скачиваем сами: у staticfiles бывает защита от чужих загрузчиков,
-// а Telegram по прямой ссылке иногда получает 403.
-$imageBytes = wt_http_get($imageUrl, 60);
-$tmpImage   = null;
-if ($imageBytes !== null && strlen($imageBytes) > 1024) {
-    $ext      = preg_match('~\.(png|jpe?g)(?:$|\?)~i', $imageUrl, $m) ? strtolower($m[1]) : 'jpg';
-    $tmpImage = sys_get_temp_dir() . '/wt_news_' . bin2hex(random_bytes(6)) . '.' . ($ext === 'jpeg' ? 'jpg' : $ext);
-    file_put_contents($tmpImage, $imageBytes);
+/** Скачивает картинку во временный файл; null, если не вышло. */
+function wt_download_image(string $url): ?string
+{
+    $bytes = wt_http_get($url, 60);
+    if ($bytes === null || strlen($bytes) < 1024) {
+        return null;
+    }
+
+    $ext  = preg_match('~\.(png|jpe?g)(?:$|\?)~i', $url, $m) ? strtolower($m[1]) : 'jpg';
+    $path = sys_get_temp_dir() . '/wt_news_' . bin2hex(random_bytes(6)) . '.' . ($ext === 'jpeg' ? 'jpg' : $ext);
+    file_put_contents($path, $bytes);
+
+    return $path;
 }
 
-$photoParams = [
-    'chat_id'    => $channel,
-    'caption'    => $caption,
-    'parse_mode' => 'HTML',
-];
-$photoParams['photo'] = $tmpImage !== null
-    ? new CURLFile($tmpImage, 'image/' . (str_ends_with($tmpImage, '.png') ? 'png' : 'jpeg'), basename($tmpImage))
-    : $imageUrl;
+function wt_curl_file(string $path): CURLFile
+{
+    return new CURLFile($path, str_ends_with($path, '.png') ? 'image/png' : 'image/jpeg', basename($path));
+}
 
-[$ok, $response] = tg_call($token, 'sendPhoto', $photoParams);
+// Картинки скачиваем сами: staticfiles иногда отдаёт 403 загрузчику Telegram.
+$localFiles = [];
+foreach ($imageUrls as $url) {
+    $localFiles[$url] = wt_download_image($url);
+}
 
-// Если фото не приняли — не теряем пост, отправляем текстом.
+$ok        = false;
+$response  = [];
+$messageId = null;
+
+if (count($imageUrls) > 1) {
+    // Альбом: подпись живёт на первом фото и показывается над всей группой.
+    $media  = [];
+    $params = ['chat_id' => $channel];
+
+    foreach (array_values($imageUrls) as $i => $url) {
+        $item = ['type' => 'photo'];
+        if ($localFiles[$url] !== null) {
+            $field = 'file' . $i;
+            $params[$field] = wt_curl_file($localFiles[$url]);
+            $item['media']  = 'attach://' . $field;
+        } else {
+            $item['media'] = $url;
+        }
+        if ($i === 0) {
+            $item['caption']    = $caption;
+            $item['parse_mode'] = 'HTML';
+        }
+        $media[] = $item;
+    }
+
+    $params['media'] = json_encode($media, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    [$ok, $response] = tg_call($token, 'sendMediaGroup', $params);
+
+    if ($ok) {
+        $messageId = $response['result'][0]['message_id'] ?? null;
+    } else {
+        fwrite(STDERR, "sendMediaGroup не прошёл: " . ($response['description'] ?? '?') . "\nПробую отправить одним фото.\n");
+    }
+}
+
+// Одно фото: либо так и задумано, либо альбом не ушёл.
 if (!$ok) {
-    fwrite(STDERR, "sendPhoto не прошёл: " . ($response['description'] ?? '?') . "\nПробую отправить текстом.\n");
+    $first  = $imageUrls[0];
+    $params = [
+        'chat_id'    => $channel,
+        'caption'    => $caption,
+        'parse_mode' => 'HTML',
+        'photo'      => $localFiles[$first] !== null ? wt_curl_file($localFiles[$first]) : $first,
+    ];
+    [$ok, $response] = tg_call($token, 'sendPhoto', $params);
+    if ($ok) {
+        $messageId = $response['result']['message_id'] ?? null;
+    } else {
+        fwrite(STDERR, "sendPhoto не прошёл: " . ($response['description'] ?? '?') . "\nПробую отправить текстом.\n");
+    }
+}
+
+// Совсем без картинки пост всё равно лучше, чем потерянный пост.
+if (!$ok) {
     [$ok, $response] = tg_call($token, 'sendMessage', [
         'chat_id'    => $channel,
         'text'       => $caption,
         'parse_mode' => 'HTML',
     ]);
+    $messageId = $response['result']['message_id'] ?? null;
 }
 
-if ($tmpImage !== null) {
-    @unlink($tmpImage);
+foreach ($localFiles as $path) {
+    if ($path !== null) {
+        @unlink($path);
+    }
 }
 
 if (!$ok) {
     fwrite(STDERR, "Публикация не удалась: " . ($response['description'] ?? json_encode($response)) . "\n");
     exit(1);
 }
-
-$messageId = $response['result']['message_id'] ?? null;
 
 if ($tail !== null) {
     [$tailOk, $tailResponse] = tg_call($token, 'sendMessage', [
@@ -160,7 +240,7 @@ if (!array_key_exists('no-state', $options)) {
     $state['posted'][wt_dedup_key($sourceUrl)] = [
         'url'        => $sourceUrl,
         'title'      => (string) ($options['title'] ?? ''),
-        'image'      => $imageUrl,
+        'images'     => $imageUrls,
         'message_id' => (string) $messageId,
         'posted_at'  => date('c'),
     ];
