@@ -14,12 +14,24 @@
  * Несколько фото уходят одним сообщением (до 10 вложений):
  *   php tools/wt_news/publish.php --url=... --images=url1,url2,url3 --text-file=...
  *
+ * Пинг для срочных новостей: --ping (равно --ping=everyone) или --ping=here
+ *
  * Проверка без отправки: добавьте --dry-run
  */
 
 require __DIR__ . '/lib.php';
 
-$options = getopt('', ['url:', 'image:', 'images:', 'text-file:', 'title::', 'dry-run', 'no-state', 'channel::']);
+$options = getopt('', ['url:', 'image:', 'images:', 'text-file:', 'title::', 'dry-run', 'no-state', 'channel::', 'ping::']);
+
+// Пинг только для срочного: горящий дедлайн, живой промокод, вышло обновление.
+$mention = null;
+if (array_key_exists('ping', $options)) {
+    $mention = ($options['ping'] === false || $options['ping'] === '') ? 'everyone' : (string) $options['ping'];
+    if (!in_array($mention, ['everyone', 'here'], true)) {
+        fwrite(STDERR, "--ping принимает everyone или here\n");
+        exit(2);
+    }
+}
 
 foreach (['url', 'text-file'] as $required) {
     if (empty($options[$required])) {
@@ -84,7 +96,7 @@ $token   = wt_env('DISCORD_BOT_TOKEN');
 $channel = $options['channel'] ?? wt_env('DISCORD_CHANNEL_ID');
 
 if ($dryRun) {
-    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nФото (" . count($imageUrls) . "):\n  " . implode("\n  ", $imageUrls) . "\nИсточник: {$sourceUrl}\n--- сообщение (" . mb_strlen($content) . " симв.) ---\n{$content}\n");
+    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nПинг: " . ($mention ? '@' . $mention : 'нет') . "\nФото (" . count($imageUrls) . "):\n  " . implode("\n  ", $imageUrls) . "\nИсточник: {$sourceUrl}\n--- сообщение (" . mb_strlen($content) . " симв.) ---\n{$content}\n");
     if ($tail !== null) {
         fwrite(STDOUT, "--- продолжение вторым сообщением (" . mb_strlen($tail) . " симв.) ---\n{$tail}\n");
     }
@@ -123,7 +135,7 @@ foreach ($imageUrls as $url) {
     }
 }
 
-[$ok, $response] = wt_discord_post($token, $channel, $content, $localFiles);
+[$ok, $response] = wt_discord_post($token, $channel, $content, $localFiles, $mention);
 $sentFiles = $ok ? count($localFiles) : 0;
 
 // Без картинок пост всё равно лучше, чем потерянный пост.
@@ -133,7 +145,7 @@ if (!$ok && $localFiles !== []) {
     if (str_contains($reason, '50013')) {
         fwrite(STDERR, "Похоже, у бота нет права «Прикреплять файлы» в этом канале.\n");
     }
-    [$ok, $response] = wt_discord_post($token, $channel, $content, []);
+    [$ok, $response] = wt_discord_post($token, $channel, $content, [], $mention);
 }
 
 foreach ($localFiles as $path) {
@@ -160,6 +172,7 @@ if (!array_key_exists('no-state', $options)) {
         'title'      => (string) ($options['title'] ?? ''),
         'images'     => $sentFiles > 0 ? $imageUrls : [],
         'message_id' => (string) $messageId,
+        'ping'       => $mention,
         'posted_at'  => date('c'),
     ];
     wt_save_state($state);

@@ -400,14 +400,26 @@ function wt_discord_request(string $token, string $method, string $path, array $
 /**
  * Отправляет сообщение в канал: текст плюс до 10 файлов вложениями.
  *
- * @param string[] $files Локальные пути к картинкам.
+ * @param string[] $files   Локальные пути к картинкам.
+ * @param ?string  $mention 'everyone', 'here' или null — кого пингуем.
  */
-function wt_discord_post(string $token, string $channelId, string $content, array $files = []): array
+function wt_discord_post(string $token, string $channelId, string $content, array $files = [], ?string $mention = null): array
 {
     $path = '/channels/' . $channelId . '/messages';
 
+    // Пинг живёт первой строкой сообщения; без allowed_mentions Discord
+    // отрисует его текстом, но никого не уведомит.
+    $allowed = ['parse' => []];
+    if ($mention === 'everyone' || $mention === 'here') {
+        $content = '@' . $mention . "\n" . $content;
+        $allowed = ['parse' => ['everyone']];
+    }
+
     if ($files === []) {
-        return wt_discord_request($token, 'POST', $path, ['content' => $content]);
+        return wt_discord_request($token, 'POST', $path, [
+            'content'          => $content,
+            'allowed_mentions' => $allowed,
+        ]);
     }
 
     $attachments = [];
@@ -422,8 +434,9 @@ function wt_discord_post(string $token, string $channelId, string $content, arra
     }
 
     $params['payload_json'] = json_encode([
-        'content'     => $content,
-        'attachments' => $attachments,
+        'content'          => $content,
+        'attachments'      => $attachments,
+        'allowed_mentions' => $allowed,
     ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
     return wt_discord_request($token, 'POST', $path, $params, true);
