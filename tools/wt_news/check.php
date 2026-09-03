@@ -1,58 +1,43 @@
 <?php
 /**
- * Проверка настройки: виден ли бот и есть ли у него доступ к каналу.
+ * Проверка настройки: виден ли бот, доступен ли канал и можно ли в него писать.
  *
  *   php tools/wt_news/check.php
  */
 
 require __DIR__ . '/lib.php';
 
-$token   = wt_env('TG_BOT_TOKEN');
-$channel = wt_env('TG_NEWS_CHANNEL');
+$token   = wt_env('DISCORD_BOT_TOKEN');
+$channel = wt_env('DISCORD_CHANNEL_ID');
 
 if (!$token) {
-    fwrite(STDERR, "TG_BOT_TOKEN не задан\n");
+    fwrite(STDERR, "DISCORD_BOT_TOKEN не задан\n");
     exit(2);
 }
 if (!$channel) {
-    fwrite(STDERR, "TG_NEWS_CHANNEL не задан\n");
+    fwrite(STDERR, "DISCORD_CHANNEL_ID не задан\n");
     exit(2);
 }
 
-function tg_get(string $token, string $method, array $query = []): array
-{
-    $url  = "https://api.telegram.org/bot{$token}/{$method}?" . http_build_query($query);
-    $body = wt_http_get($url, 20);
-    $data = $body === null ? null : json_decode($body, true);
-
-    return is_array($data) ? $data : ['ok' => false, 'description' => 'нет ответа от api.telegram.org'];
-}
-
-$me = tg_get($token, 'getMe');
-if (empty($me['ok'])) {
-    fwrite(STDERR, "getMe: " . ($me['description'] ?? '?') . "\n");
+[$ok, $me] = wt_discord_request($token, 'GET', '/users/@me');
+if (!$ok) {
+    fwrite(STDERR, "Бот не отвечает: " . wt_discord_error($me) . "\n");
     exit(1);
 }
-fwrite(STDOUT, "Бот: @" . ($me['result']['username'] ?? '?') . "\n");
+fwrite(STDOUT, "Бот: " . ($me['username'] ?? '?') . " (id " . ($me['id'] ?? '?') . ")\n");
 
-$chat = tg_get($token, 'getChat', ['chat_id' => $channel]);
-if (empty($chat['ok'])) {
-    fwrite(STDERR, "getChat({$channel}): " . ($chat['description'] ?? '?') . "\nДобавьте бота администратором канала с правом публикации.\n");
+[$ok, $chat] = wt_discord_request($token, 'GET', '/channels/' . $channel);
+if (!$ok) {
+    fwrite(STDERR, "Канал недоступен: " . wt_discord_error($chat) . "\nДобавьте бота на сервер и дайте ему доступ к каналу.\n");
     exit(1);
 }
-fwrite(STDOUT, "Канал: " . ($chat['result']['title'] ?? '?') . " (id " . ($chat['result']['id'] ?? '?') . ")\n");
+fwrite(STDOUT, "Канал: #" . ($chat['name'] ?? '?') . " (сервер " . ($chat['guild_id'] ?? '?') . ")\n");
 
-$admins = tg_get($token, 'getChatAdministrators', ['chat_id' => $channel]);
-$isAdmin = false;
-foreach ($admins['result'] ?? [] as $admin) {
-    if (($admin['user']['id'] ?? null) === ($me['result']['id'] ?? null)) {
-        $isAdmin = true;
-        $canPost = !empty($admin['can_post_messages']);
-        fwrite(STDOUT, "Бот администратор: да, право публикации: " . ($canPost ? 'есть' : 'НЕТ') . "\n");
-    }
-}
-if (!$isAdmin) {
-    fwrite(STDERR, "Бот не в администраторах канала — публиковать не сможет.\n");
+// Права на отправку проверяются только реальной отправкой, поэтому смотрим
+// хотя бы тип канала: в голосовой или в категорию писать нельзя.
+$textLike = [0, 5, 10, 11, 12, 15];
+if (!in_array((int) ($chat['type'] ?? -1), $textLike, true)) {
+    fwrite(STDERR, "Это не текстовый канал (type " . ($chat['type'] ?? '?') . ")\n");
     exit(1);
 }
 

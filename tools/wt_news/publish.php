@@ -1,18 +1,17 @@
 <?php
 /**
- * Публикует пост с фото в Telegram-канал и отмечает новость как опубликованную.
+ * Публикует пост с фото в канал Discord и отмечает новость как опубликованную.
  *
  * Требует переменные окружения (или строки в .env):
- *   TG_BOT_TOKEN     — токен бота из @BotFather
- *   TG_NEWS_CHANNEL  — @username или числовой id канала (бот должен быть админом)
+ *   DISCORD_BOT_TOKEN   — токен бота из Developer Portal
+ *   DISCORD_CHANNEL_ID  — числовой id канала (бот должен видеть канал и писать в него)
  *
- * Пример:
  *   php tools/wt_news/publish.php \
- *     --url=https://warthunder.com/ru/news/17945-... \
+ *     --url=https://warthunder.com/ru/news/17975-... \
  *     --image=https://staticfiles.warthunder.com/... \
  *     --text-file=/tmp/post.txt
  *
- * Несколько фото уходят альбомом (до 10, подпись на первом):
+ * Несколько фото уходят одним сообщением (до 10 вложений):
  *   php tools/wt_news/publish.php --url=... --images=url1,url2,url3 --text-file=...
  *
  * Проверка без отправки: добавьте --dry-run
@@ -45,9 +44,8 @@ if ($imageUrls === []) {
     fwrite(STDERR, "Не хватает --image или --images\n");
     exit(2);
 }
-if (count($imageUrls) > 10) {
-    // Telegram не принимает альбом больше чем из 10 медиа.
-    $imageUrls = array_slice($imageUrls, 0, 10);
+if (count($imageUrls) > DISCORD_MAX_FILES) {
+    $imageUrls = array_slice($imageUrls, 0, DISCORD_MAX_FILES);
 }
 
 $sourceUrl = (string) $options['url'];
@@ -59,8 +57,8 @@ if (!is_readable($textFile)) {
     exit(2);
 }
 
-$caption = trim((string) file_get_contents($textFile));
-if ($caption === '') {
+$content = trim((string) file_get_contents($textFile));
+if ($content === '') {
     fwrite(STDERR, "Текст поста пустой\n");
     exit(2);
 }
@@ -71,58 +69,31 @@ if (wt_is_posted($state, $sourceUrl)) {
     exit(3);
 }
 
-// Telegram: подпись к фото — до 1024 символов, отдельное сообщение — до 4096.
-$captionLimit = 1024;
+// В Discord сообщение до 2000 символов. Длинный текст режем по абзацу.
 $tail = null;
-if (mb_strlen($caption) > $captionLimit) {
-    $cut = mb_strrpos(mb_substr($caption, 0, $captionLimit - 1), "\n\n");
-    if ($cut === false || $cut < 300) {
-        $cut = $captionLimit - 1;
+if (mb_strlen($content) > DISCORD_MAX_CONTENT) {
+    $cut = mb_strrpos(mb_substr($content, 0, DISCORD_MAX_CONTENT - 1), "\n\n");
+    if ($cut === false || $cut < 500) {
+        $cut = DISCORD_MAX_CONTENT - 1;
     }
-    $tail    = trim(mb_substr($caption, $cut));
-    $caption = trim(mb_substr($caption, 0, $cut));
+    $tail    = trim(mb_substr($content, $cut));
+    $content = trim(mb_substr($content, 0, $cut));
 }
 
-$token   = wt_env('TG_BOT_TOKEN');
-$channel = $options['channel'] ?? wt_env('TG_NEWS_CHANNEL');
+$token   = wt_env('DISCORD_BOT_TOKEN');
+$channel = $options['channel'] ?? wt_env('DISCORD_CHANNEL_ID');
 
 if ($dryRun) {
-    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nФото (" . count($imageUrls) . "):\n  " . implode("\n  ", $imageUrls) . "\nИсточник: {$sourceUrl}\n--- подпись (" . mb_strlen($caption) . " симв.) ---\n{$caption}\n");
+    fwrite(STDOUT, "=== DRY RUN ===\nКанал: " . ($channel ?: '<не задан>') . "\nФото (" . count($imageUrls) . "):\n  " . implode("\n  ", $imageUrls) . "\nИсточник: {$sourceUrl}\n--- сообщение (" . mb_strlen($content) . " симв.) ---\n{$content}\n");
     if ($tail !== null) {
-        fwrite(STDOUT, "--- продолжение отдельным сообщением (" . mb_strlen($tail) . " симв.) ---\n{$tail}\n");
+        fwrite(STDOUT, "--- продолжение вторым сообщением (" . mb_strlen($tail) . " симв.) ---\n{$tail}\n");
     }
     exit(0);
 }
 
 if (!$token || !$channel) {
-    fwrite(STDERR, "Нужны TG_BOT_TOKEN и TG_NEWS_CHANNEL в окружении или .env\n");
+    fwrite(STDERR, "Нужны DISCORD_BOT_TOKEN и DISCORD_CHANNEL_ID в окружении или .env\n");
     exit(2);
-}
-
-/** Вызов Bot API. Возвращает [ok, ответ]. */
-function tg_call(string $token, string $method, array $params, int $timeout = 60): array
-{
-    $ch = curl_init("https://api.telegram.org/bot{$token}/{$method}");
-    curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_POSTFIELDS     => $params,
-        CURLOPT_TIMEOUT        => $timeout,
-    ]);
-    $raw = curl_exec($ch);
-    $err = curl_error($ch);
-    curl_close($ch);
-
-    if ($raw === false) {
-        return [false, ['description' => 'curl: ' . $err]];
-    }
-
-    $decoded = json_decode((string) $raw, true);
-    if (!is_array($decoded)) {
-        return [false, ['description' => 'Неразбираемый ответ: ' . substr((string) $raw, 0, 300)]];
-    }
-
-    return [(bool) ($decoded['ok'] ?? false), $decoded];
 }
 
 /** Скачивает картинку во временный файл; null, если не вышло. */
@@ -140,99 +111,46 @@ function wt_download_image(string $url): ?string
     return $path;
 }
 
-function wt_curl_file(string $path): CURLFile
-{
-    return new CURLFile($path, str_ends_with($path, '.png') ? 'image/png' : 'image/jpeg', basename($path));
-}
-
-// Картинки скачиваем сами: staticfiles иногда отдаёт 403 загрузчику Telegram.
+// Картинки скачиваем сами: Discord тянет вложения только из загрузки,
+// а staticfiles к тому же отдаёт 403 чужим загрузчикам.
 $localFiles = [];
 foreach ($imageUrls as $url) {
-    $localFiles[$url] = wt_download_image($url);
-}
-
-$ok        = false;
-$response  = [];
-$messageId = null;
-
-if (count($imageUrls) > 1) {
-    // Альбом: подпись живёт на первом фото и показывается над всей группой.
-    $media  = [];
-    $params = ['chat_id' => $channel];
-
-    foreach (array_values($imageUrls) as $i => $url) {
-        $item = ['type' => 'photo'];
-        if ($localFiles[$url] !== null) {
-            $field = 'file' . $i;
-            $params[$field] = wt_curl_file($localFiles[$url]);
-            $item['media']  = 'attach://' . $field;
-        } else {
-            $item['media'] = $url;
-        }
-        if ($i === 0) {
-            $item['caption']    = $caption;
-            $item['parse_mode'] = 'HTML';
-        }
-        $media[] = $item;
-    }
-
-    $params['media'] = json_encode($media, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-    [$ok, $response] = tg_call($token, 'sendMediaGroup', $params);
-
-    if ($ok) {
-        $messageId = $response['result'][0]['message_id'] ?? null;
+    $path = wt_download_image($url);
+    if ($path !== null) {
+        $localFiles[] = $path;
     } else {
-        fwrite(STDERR, "sendMediaGroup не прошёл: " . ($response['description'] ?? '?') . "\nПробую отправить одним фото.\n");
+        fwrite(STDERR, "Не скачалась картинка: {$url}\n");
     }
 }
 
-// Одно фото: либо так и задумано, либо альбом не ушёл.
-if (!$ok) {
-    $first  = $imageUrls[0];
-    $params = [
-        'chat_id'    => $channel,
-        'caption'    => $caption,
-        'parse_mode' => 'HTML',
-        'photo'      => $localFiles[$first] !== null ? wt_curl_file($localFiles[$first]) : $first,
-    ];
-    [$ok, $response] = tg_call($token, 'sendPhoto', $params);
-    if ($ok) {
-        $messageId = $response['result']['message_id'] ?? null;
-    } else {
-        fwrite(STDERR, "sendPhoto не прошёл: " . ($response['description'] ?? '?') . "\nПробую отправить текстом.\n");
-    }
-}
+[$ok, $response] = wt_discord_post($token, $channel, $content, $localFiles);
+$sentFiles = $ok ? count($localFiles) : 0;
 
-// Совсем без картинки пост всё равно лучше, чем потерянный пост.
-if (!$ok) {
-    [$ok, $response] = tg_call($token, 'sendMessage', [
-        'chat_id'    => $channel,
-        'text'       => $caption,
-        'parse_mode' => 'HTML',
-    ]);
-    $messageId = $response['result']['message_id'] ?? null;
+// Без картинок пост всё равно лучше, чем потерянный пост.
+if (!$ok && $localFiles !== []) {
+    $reason = wt_discord_error($response);
+    fwrite(STDERR, "С вложениями не прошло: {$reason}\nПробую отправить текстом.\n");
+    if (str_contains($reason, '50013')) {
+        fwrite(STDERR, "Похоже, у бота нет права «Прикреплять файлы» в этом канале.\n");
+    }
+    [$ok, $response] = wt_discord_post($token, $channel, $content, []);
 }
 
 foreach ($localFiles as $path) {
-    if ($path !== null) {
-        @unlink($path);
-    }
+    @unlink($path);
 }
 
 if (!$ok) {
-    fwrite(STDERR, "Публикация не удалась: " . ($response['description'] ?? json_encode($response)) . "\n");
+    fwrite(STDERR, "Публикация не удалась: " . wt_discord_error($response) . "\n");
     exit(1);
 }
 
+$messageId = $response['id'] ?? null;
+
 if ($tail !== null) {
-    [$tailOk, $tailResponse] = tg_call($token, 'sendMessage', [
-        'chat_id'             => $channel,
-        'text'                => $tail,
-        'parse_mode'          => 'HTML',
-        'reply_to_message_id' => $messageId,
-    ]);
+    [$tailOk, $tailResponse] = wt_discord_post($token, $channel, $tail, []);
     if (!$tailOk) {
-        fwrite(STDERR, "Хвост поста не отправился: " . ($tailResponse['description'] ?? '?') . "\n");
+        fwrite(STDERR, "Хвост поста не отправился: " . wt_discord_error($tailResponse) . "\n");
     }
 }
 
@@ -240,11 +158,11 @@ if (!array_key_exists('no-state', $options)) {
     $state['posted'][wt_dedup_key($sourceUrl)] = [
         'url'        => $sourceUrl,
         'title'      => (string) ($options['title'] ?? ''),
-        'images'     => $imageUrls,
+        'images'     => $sentFiles > 0 ? $imageUrls : [],
         'message_id' => (string) $messageId,
         'posted_at'  => date('c'),
     ];
     wt_save_state($state);
 }
 
-fwrite(STDOUT, "Опубликовано: message_id={$messageId}, источник={$sourceUrl}\n");
+fwrite(STDOUT, "Опубликовано: message_id={$messageId}, вложений={$sentFiles}, источник={$sourceUrl}\n");

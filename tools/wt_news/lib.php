@@ -5,6 +5,11 @@
 
 const WT_UA = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36';
 
+/** Лимиты Discord: 2000 символов в сообщении и 10 вложений. */
+const DISCORD_API          = 'https://discord.com/api/v10';
+const DISCORD_MAX_CONTENT  = 2000;
+const DISCORD_MAX_FILES    = 10;
+
 function wt_state_path(): string
 {
     return __DIR__ . '/posted.json';
@@ -345,4 +350,98 @@ function wt_forum_json(string $path): ?array
     $data = json_decode($body, true);
 
     return is_array($data) ? $data : null;
+}
+
+/**
+ * Запрос к Discord API. Возвращает [успех, разобранный ответ].
+ *
+ * @param array<string, mixed> $params  Тело запроса (или multipart-поля).
+ */
+function wt_discord_request(string $token, string $method, string $path, array $params = [], bool $multipart = false): array
+{
+    $ch = curl_init(DISCORD_API . $path);
+    $headers = ['Authorization: Bot ' . $token];
+
+    $opts = [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CUSTOMREQUEST  => $method,
+        CURLOPT_TIMEOUT        => 90,
+    ];
+
+    if ($method !== 'GET') {
+        if ($multipart) {
+            $opts[CURLOPT_POSTFIELDS] = $params;
+        } else {
+            $headers[] = 'Content-Type: application/json';
+            $opts[CURLOPT_POSTFIELDS] = json_encode($params, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        }
+    }
+
+    $opts[CURLOPT_HTTPHEADER] = $headers;
+    curl_setopt_array($ch, $opts);
+
+    $raw  = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    $err  = curl_error($ch);
+    curl_close($ch);
+
+    if ($raw === false) {
+        return [false, ['message' => 'curl: ' . $err]];
+    }
+
+    $data = json_decode((string) $raw, true);
+    if (!is_array($data)) {
+        $data = ['message' => 'Неразбираемый ответ: ' . substr((string) $raw, 0, 300)];
+    }
+
+    return [$code >= 200 && $code < 300, $data];
+}
+
+/**
+ * Отправляет сообщение в канал: текст плюс до 10 файлов вложениями.
+ *
+ * @param string[] $files Локальные пути к картинкам.
+ */
+function wt_discord_post(string $token, string $channelId, string $content, array $files = []): array
+{
+    $path = '/channels/' . $channelId . '/messages';
+
+    if ($files === []) {
+        return wt_discord_request($token, 'POST', $path, ['content' => $content]);
+    }
+
+    $attachments = [];
+    $params      = [];
+    foreach (array_values($files) as $i => $file) {
+        $attachments[]         = ['id' => $i, 'filename' => basename($file)];
+        $params['files[' . $i . ']'] = new CURLFile(
+            $file,
+            str_ends_with($file, '.png') ? 'image/png' : 'image/jpeg',
+            basename($file)
+        );
+    }
+
+    $params['payload_json'] = json_encode([
+        'content'     => $content,
+        'attachments' => $attachments,
+    ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    return wt_discord_request($token, 'POST', $path, $params, true);
+}
+
+/** Человекочитаемая ошибка из ответа Discord. */
+function wt_discord_error(array $response): string
+{
+    $parts = [];
+    if (isset($response['message'])) {
+        $parts[] = (string) $response['message'];
+    }
+    if (isset($response['code'])) {
+        $parts[] = 'code ' . $response['code'];
+    }
+    if (isset($response['errors'])) {
+        $parts[] = json_encode($response['errors'], JSON_UNESCAPED_UNICODE);
+    }
+
+    return $parts === [] ? json_encode($response, JSON_UNESCAPED_UNICODE) : implode(', ', $parts);
 }
