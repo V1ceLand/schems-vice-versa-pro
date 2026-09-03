@@ -65,12 +65,11 @@
             "url": "https://warthunder.com/ru/news/17973-akcia-skidka-na-f-20a-k-godovsine-ego-pervogo-poleta-ru"
         },
         "warthunder.com/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma": {
-            "images": [],
-            "message_id": "1544929224320884859",
-            "note": "ушло текстом без картинок: у бота не было права «Прикреплять файлы»",
-            "posted_at": "2026-09-03T04:37:10+00:00",
+            "url": "https://warthunder.com/ru/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma-ru",
             "title": "Событие «Космическая программа»: F-16XL",
-            "url": "https://warthunder.com/ru/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma-ru"
+            "images": [],
+            "message_id": "1544930750070267965",
+            "posted_at": "2026-09-03T04:43:15+00:00"
         }
     }
 }
