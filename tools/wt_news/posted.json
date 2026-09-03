@@ -1,18 +1,16 @@
 {
     "posted": {
         "warthunder.com/news/17951-kibersport-registrirujtes-na-otborocnye-tretego-turnira-pro-ligi-wtcs": {
-            "url": "https://warthunder.com/ru/news/17951-kibersport-registrirujtes-na-otborocnye-tretego-turnira-pro-ligi-wtcs-ru",
-            "title": "Twitch Drops и раздачи на отборочных WTCS",
             "images": [
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/esport/esport_120826/940x530_COVER_RU_585420083e888e43fa3d8367657d3a90.jpg",
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/esport/esport_120826/940x1100_REWARDS_RU_GJN_2_a57ef5b026ebcf656bd2f9658e16b4c8.jpg"
             ],
             "message_id": "19",
-            "posted_at": "2026-08-28T09:20:30+00:00"
+            "posted_at": "2026-08-28T09:20:30+00:00",
+            "title": "Twitch Drops и раздачи на отборочных WTCS",
+            "url": "https://warthunder.com/ru/news/17951-kibersport-registrirujtes-na-otborocnye-tretego-turnira-pro-ligi-wtcs-ru"
         },
         "warthunder.com/news/17967-v-razrabotke-novaa-lokacia-darvinskij-kholm-i-vaznye-dorabotki-kart": {
-            "url": "https://warthunder.com/ru/news/17967-v-razrabotke-novaa-lokacia-darvinskij-kholm-i-vaznye-dorabotki-kart-ru",
-            "title": "Новая локация «Дарвинский холм» и доработки карт",
             "images": [
                 "https://staticfiles.warthunder.com/upload/image/0_2026/8_August/Locations/dh_05_940_d68384910ec60c74d2642b74d6a8b2bb.jpg",
                 "https://staticfiles.warthunder.com/upload/image/0_2026/8_August/Locations/DH_2_940_249c445b4ec469aa4e412ec94c43cb5a.jpg",
@@ -20,18 +18,18 @@
                 "https://staticfiles.warthunder.com/upload/image/0_2026/8_August/Locations/dh_04_940_8acea58ed77575b51895ba1c3b090f77.jpg"
             ],
             "message_id": "11",
-            "posted_at": "2026-08-28T09:15:16+00:00"
+            "posted_at": "2026-08-28T09:15:16+00:00",
+            "title": "Новая локация «Дарвинский холм» и доработки карт",
+            "url": "https://warthunder.com/ru/news/17967-v-razrabotke-novaa-lokacia-darvinskij-kholm-i-vaznye-dorabotki-kart-ru"
         },
         "warthunder.com/news/17968-v-razrabotke-nagrada-za-pokidanie-protivnikom-tanka-ili-korabla": {
-            "url": "https://warthunder.com/ru/news/17968-v-razrabotke-nagrada-za-pokidanie-protivnikom-tanka-ili-korabla-ru",
-            "title": "Награда за покидание противником танка или корабля",
             "image": "https://staticfiles.warthunder.com/upload/image/!2026/08/db/GroundKills/centurion_mk10_x_t_54_1951_940_dfbe7ff2da6fac11e3943e54d0d2955e.jpg",
             "message_id": "2",
-            "posted_at": "2026-08-28T09:03:00+00:00"
+            "posted_at": "2026-08-28T09:03:00+00:00",
+            "title": "Награда за покидание противником танка или корабля",
+            "url": "https://warthunder.com/ru/news/17968-v-razrabotke-nagrada-za-pokidanie-protivnikom-tanka-ili-korabla-ru"
         },
         "warthunder.com/news/17969-v-razrabotke-perestanovki-v-vetkakh-issledovania-nazemnoj-tekhniki-v-sleduusem-krupnom-obnovlenii": {
-            "url": "https://warthunder.com/ru/news/17969-v-razrabotke-perestanovki-v-vetkakh-issledovania-nazemnoj-tekhniki-v-sleduusem-krupnom-obnovlenii-ru",
-            "title": "Перестановки в ветках наземной техники",
             "images": [
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/db/2_59_ground_reshuffles/940_m55_506bf5704ef6d8986c79f9f1d39b3743.jpg",
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/db/2_59_ground_reshuffles/940_GERM_Ground_4_2026_439ee56100a82238d667f2b9e079745a.jpg",
@@ -39,22 +37,22 @@
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/db/2_59_ground_reshuffles/940_UK_Ground_4_2026_9720e2b831ab9cf136328a2d6d2de417.jpg"
             ],
             "message_id": "15",
-            "posted_at": "2026-08-28T09:15:46+00:00"
+            "posted_at": "2026-08-28T09:15:46+00:00",
+            "title": "Перестановки в ветках наземной техники",
+            "url": "https://warthunder.com/ru/news/17969-v-razrabotke-perestanovki-v-vetkakh-issledovania-nazemnoj-tekhniki-v-sleduusem-krupnom-obnovlenii-ru"
         },
         "warthunder.com/news/17972-nosimyj-avarijnyj-zapas": {
-            "url": "https://warthunder.com/ru/news/17972-nosimyj-avarijnyj-zapas-ru",
-            "title": "Носимый аварийный запас",
             "images": [
                 "https://staticfiles.warthunder.com/upload/image/0_2026/8_August/SurvivalKit/940x529_news_personal_survival_kit_a77425ebc3062561730816de259ee246.jpg",
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/event/survival_kit_arts/screen_military_surv/940_IS-7_84cbdbc553a5aaa1caef9be24218f8a4.jpg",
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/event/survival_kit_arts/screen_military_surv/940_Su-25BM_3f50dba62daec92c1ce38c97ccb7d60e.jpg"
             ],
             "message_id": "8",
-            "posted_at": "2026-08-28T09:13:47+00:00"
+            "posted_at": "2026-08-28T09:13:47+00:00",
+            "title": "Носимый аварийный запас",
+            "url": "https://warthunder.com/ru/news/17972-nosimyj-avarijnyj-zapas-ru"
         },
         "warthunder.com/news/17973-akcia-skidka-na-f-20a-k-godovsine-ego-pervogo-poleta": {
-            "url": "https://warthunder.com/ru/news/17973-akcia-skidka-na-f-20a-k-godovsine-ego-pervogo-poleta-ru",
-            "title": "Скидка на F-20A к годовщине первого полёта",
             "images": [
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/news/24_03_01_f_20a/news_940_f_20a_4eeb8cdbbebffa3c78a8f42b7f5c667d.jpg",
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/news/24_03_01_f_20a/F_20A_Screens/F_20A_1_940_601cc794854f46de2214c39fd8792559.jpg",
@@ -62,18 +60,17 @@
                 "https://staticfiles.warthunder.com/upload/image/!2026/08/news/24_03_01_f_20a/F_20A_Screens/F_20A_2_940_9a6f7a31fdddd6baa626fbb5e52dff53.jpg"
             ],
             "message_id": "4",
-            "posted_at": "2026-08-28T09:13:35+00:00"
+            "posted_at": "2026-08-28T09:13:35+00:00",
+            "title": "Скидка на F-20A к годовщине первого полёта",
+            "url": "https://warthunder.com/ru/news/17973-akcia-skidka-na-f-20a-k-godovsine-ego-pervogo-poleta-ru"
         },
         "warthunder.com/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma": {
-            "url": "https://warthunder.com/ru/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma-ru",
-            "title": "Событие «Космическая программа»: F-16XL",
-            "images": [
-                "https://staticfiles.warthunder.com/upload/image/!2026/08/event/26_08_26_aircraft_marathon_space_programm/940x530_news_space_program_b2a8c350fa6073c857d0de73b96a6edb.jpg",
-                "https://staticfiles.warthunder.com/upload/image/!2026/08/event/26_08_26_aircraft_marathon_space_programm/940_f_16xl_01_4e30c4655aeed731f000e210fb6a6255.jpg",
-                "https://staticfiles.warthunder.com/upload/image/!2026/08/event/26_08_26_aircraft_marathon_space_programm/decals/f_16xl_camo_shipn1_18565b95120afaee63d5f61716d455b8.jpg"
-            ],
+            "images": [],
             "message_id": "1544929224320884859",
-            "posted_at": "2026-09-03T04:37:10+00:00"
+            "note": "ушло текстом без картинок: у бота не было права «Прикреплять файлы»",
+            "posted_at": "2026-09-03T04:37:10+00:00",
+            "title": "Событие «Космическая программа»: F-16XL",
+            "url": "https://warthunder.com/ru/news/17975-sobytie-polucite-f-16xl-v-sobytii-kosmiceskaa-programma-ru"
         }
     }
 }
