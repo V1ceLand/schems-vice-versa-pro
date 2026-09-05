@@ -1,0 +1,119 @@
+/*
+ * Токены Material 3 из приложения «Пары» (ui/theme/Color.kt).
+ * Значения перенесены побайтово, чтобы демонстрационный сайт и экран
+ * телефона в нём выглядели ровно так же, как фирменная схема на устройстве.
+ * Опорные ряды: primary — азур 268°, secondary — тот же оттенок с хромой 10,
+ * tertiary — янтарь 70°, error — красный 25°, плюс собственный ряд
+ * «выполнено» (145°) из PairsExtraColors.
+ */
+:root {
+  color-scheme: light;
+
+  --primary: #00629d;
+  --on-primary: #ffffff;
+  --primary-container: #d2e4ff;
+  --on-primary-container: #001d34;
+
+  --secondary: #555f6e;
+  --on-secondary: #ffffff;
+  --secondary-container: #d8e3f5;
+  --on-secondary-container: #121c29;
+
+  --tertiary: #855312;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #ffdcbc;
+  --on-tertiary-container: #291800;
+
+  --error: #b32537;
+  --on-error: #ffffff;
+  --error-container: #ffdad8;
+  --on-error-container: #410004;
+
+  --success: #1f6c32;
+  --on-success: #ffffff;
+  --success-container: #a8f4b0;
+  --on-success-container: #002202;
+
+  --background: #f6faff;
+  --on-background: #191c1f;
+  --surface: #f6faff;
+  --on-surface: #191c1f;
+  --surface-variant: #d9e3f3;
+  --on-surface-variant: #3e4754;
+  --inverse-surface: #2e3135;
+  --inverse-on-surface: #eef1f6;
+  --outline: #6e7886;
+  --outline-variant: #bdc7d7;
+
+  --surface-lowest: #ffffff;
+  --surface-low: #f0f4f9;
+  --surface-container: #ebeef3;
+  --surface-high: #e5e8ee;
+  --surface-highest: #dfe3e8;
+
+  --scrim: rgba(0, 0, 0, .32);
+  --shadow-1: 0 1px 2px rgba(16, 24, 40, .08), 0 1px 3px rgba(16, 24, 40, .06);
+  --shadow-2: 0 4px 10px rgba(16, 24, 40, .09), 0 2px 4px rgba(16, 24, 40, .05);
+  --shadow-3: 0 18px 42px rgba(16, 24, 40, .16), 0 6px 14px rgba(16, 24, 40, .08);
+
+  --r-xs: 8px;
+  --r-s: 12px;
+  --r-m: 16px;
+  --r-l: 24px;
+  --r-xl: 32px;
+  --r-full: 999px;
+
+  --font: "Roboto", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --page: 1160px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --primary: #9fcaff;
+  --on-primary: #003355;
+  --primary-container: #004a78;
+  --on-primary-container: #d2e4ff;
+
+  --secondary: #bcc7d9;
+  --on-secondary: #27313f;
+  --secondary-container: #3d4756;
+  --on-secondary-container: #d8e3f5;
+
+  --tertiary: #faba76;
+  --on-tertiary: #482a00;
+  --tertiary-container: #683d00;
+  --on-tertiary-container: #ffdcbc;
+
+  --error: #ffb3b0;
+  --on-error: #680016;
+  --error-container: #920023;
+  --on-error-container: #ffdad8;
+
+  --success: #8cd895;
+  --on-success: #003912;
+  --success-container: #00531e;
+  --on-success-container: #a8f4b0;
+
+  --background: #111418;
+  --on-background: #dfe3e8;
+  --surface: #111418;
+  --on-surface: #dfe3e8;
+  --surface-variant: #3e4754;
+  --on-surface-variant: #bdc7d7;
+  --inverse-surface: #dfe3e8;
+  --inverse-on-surface: #2e3135;
+  --outline: #8891a0;
+  --outline-variant: #3e4754;
+
+  --surface-lowest: #0b0e13;
+  --surface-low: #191c1f;
+  --surface-container: #1d2024;
+  --surface-high: #282a2e;
+  --surface-highest: #323539;
+
+  --scrim: rgba(0, 0, 0, .56);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .5);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, .5);
+  --shadow-3: 0 18px 42px rgba(0, 0, 0, .6), 0 6px 14px rgba(0, 0, 0, .4);
+}

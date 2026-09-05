@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Пары — расписание, задания и группа. Демонстрация</title>
+<meta name="description" content="Демонстрационный сайт приложения «Пары»: расписание с чётностью недель, фазы учебного дня, задания, чат группы и роли. Живой экран приложения прямо на странице.">
+<meta name="theme-color" content="#00629d">
+<meta property="og:title" content="Пары — демонстрация приложения">
+<meta property="og:description" content="Расписание с чётностью недель, фазы учебного дня, задания, чат и роли группы. Экран приложения работает прямо в браузере.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2216%22 fill=%22%2300629d%22/><text x=%2232%22 y=%2245%22 text-anchor=%22middle%22 font-family=%22sans-serif%22 font-weight=%22bold%22 font-size=%2236%22 fill=%22white%22>П</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/phone.css">
+<style>
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    clip-path: inset(50%); overflow: hidden; white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<a class="skip" href="#demo">Перейти к демонстрации</a>
+
+<header class="site-header">
+  <div class="wrap site-header__in">
+    <a class="brand" href="#top"><span class="brand__mark">П</span> Пары</a>
+    <nav class="site-nav" aria-label="Разделы страницы">
+      <a href="#demo">Демо</a>
+      <a href="#features">Возможности</a>
+      <a href="#engine">Как считается</a>
+      <a href="#group">Группа и роли</a>
+      <a href="#plans">Тарифы</a>
+      <a href="#install">Установка</a>
+    </nav>
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Тёмная тема">☾</button>
+      <a class="btn btn--filled btn--small" href="#install">Установить</a>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ------------------------------------------------------------ демонстрация -->
+<section class="demo" id="demo" style="padding-top: 44px">
+  <div class="wrap demo__grid">
+
+    <div class="demo__copy">
+      <span class="eyebrow">Android · Material 3 · работает офлайн</span>
+      <h1>Расписание, которое <em>считает время за вас</em></h1>
+      <p class="hero__lead">«Пары» показывают не таблицу, а учебный день: какая сейчас пара,
+        сколько до звонка, что дальше и что задали. Чётность недели, замены на день
+        и пятиминутки — уже внутри.</p>
+      <div class="hero__actions">
+        <a class="btn btn--filled" href="#install">Скачать APK</a>
+        <a class="btn btn--outline" href="#features">Что умеет</a>
+      </div>
+      <div class="hero__chips">
+        <span class="hero__chip">Android 7.0+</span>
+        <span class="hero__chip">Без регистрации</span>
+        <span class="hero__chip">Синхронизация группы</span>
+        <span class="hero__chip">Уведомления и будильник</span>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="phone__screen" id="phone-screen" role="application" aria-label="Экран приложения «Пары»"></div>
+    </div>
+
+    <div class="demo__panel">
+      <div class="control">
+        <div class="control__title">Машина времени</div>
+        <div class="control__row">
+          <span class="control__value" id="clock-value">10:30</span>
+          <input type="range" id="clock-range" min="360" max="1320" step="1" value="630"
+                 aria-label="Время в приложении">
+          <button class="btn btn--tonal btn--small" id="play">▶ Проиграть день</button>
+        </div>
+        <p class="control__hint" id="phase-hint"></p>
+        <p class="control__hint">Двигайте время — карточка дня, прогресс и подсветка занятий
+          пересчитываются тем же алгоритмом, что и в приложении.</p>
+      </div>
+
+      <div class="control">
+        <div class="control__title">Показать фазу дня</div>
+        <div class="scenarios">
+          <button class="btn btn--outline btn--small" data-scenario="BEFORE_FIRST">До первой пары</button>
+          <button class="btn btn--outline btn--small" data-scenario="LESSON">Идёт пара</button>
+          <button class="btn btn--outline btn--small" data-scenario="MIDDLE_BREAK">Пятиминутка</button>
+          <button class="btn btn--outline btn--small" data-scenario="BETWEEN">Перерыв</button>
+          <button class="btn btn--outline btn--small" data-scenario="FINISHED">День закончился</button>
+        </div>
+        <div class="control__title" style="margin-top:6px">Открыть экран</div>
+        <div class="scenarios">
+          <button class="btn btn--tonal btn--small" data-goto="TODAY">Сегодня</button>
+          <button class="btn btn--tonal btn--small" data-goto="WEEK">Неделя</button>
+          <button class="btn btn--tonal btn--small" data-goto="HOMEWORK">Задания</button>
+          <button class="btn btn--tonal btn--small" data-goto="CHAT">Чат</button>
+          <button class="btn btn--tonal btn--small" data-goto="GROUP">Группа</button>
+          <button class="btn btn--tonal btn--small" data-goto="SETTINGS">Настройки</button>
+          <button class="btn btn--tonal btn--small" data-goto="UPDATE">Обновление</button>
+          <button class="btn btn--outline btn--small" id="reset-day">Сбросить</button>
+        </div>
+        <p class="control__hint">Демонстрация открыта на дате <span id="demo-date"></span>.
+          Замена на день стоит на <span id="override-date"></span> — там у пар появляется
+          метка «только сегодня». Данные вымышленные, ничего никуда не отправляется.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- -------------------------------------------------------------- возможности -->
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Возможности</span>
+      <h2>Учебный день целиком, а не только сетка предметов</h2>
+      <p class="lead">Расписание, домашние задания, общение группы и уведомления живут в одном
+        приложении и работают без сети — сервер нужен только для синхронизации.</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card__icon">◷</div>
+        <h3>Фазы учебного дня</h3>
+        <p>Карточка сверху всегда отвечает на вопрос «что сейчас»: до первой пары, идёт пара,
+          пятиминутка, перерыв или день закончился — с прогрессом и «осталось N минут».</p>
+      </article>
+      <article class="card card--s">
+        <div class="card__icon">⇄</div>
+        <h3>Чётность недель</h3>
+        <p>Чередование считается от опорной даты, которую задают в настройках. Вкладка «Неделя»
+          показывает постоянное расписание любого типа недели.</p>
+      </article>
+      <article class="card card--t">
+        <div class="card__icon">✎</div>
+        <h3>Замены на день</h3>
+        <p>Разовая замена вытесняет постоянное расписание на конкретную дату. Метку
+          «только сегодня» получают ровно те пары, что отличаются от обычной недели.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon">☰</div>
+        <h3>Пятиминутки</h3>
+        <p>У каждого номера пары свой режим: перерыв в середине, «отпускают на 5 минут раньше»
+          или ничего. Отдельное занятие может переопределить режим.</p>
+      </article>
+      <article class="card card--g">
+        <div class="card__icon">✓</div>
+        <h3>Задания</h3>
+        <p>Просроченные, актуальные и свёрнутый список выполненных. Срок, напоминание,
+          фото и пометка «только у меня» — задание может быть личным или на всю группу.</p>
+      </article>
+      <article class="card card--s">
+        <div class="card__icon">✆</div>
+        <h3>Чат и форум группы</h3>
+        <p>Общий чат и темы по предметам: фото, файлы, голосовые, реакции, отметки о прочтении
+          и история правок с восстановлением сообщения.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon">◍</div>
+        <h3>Роли и права</h3>
+        <p>Девять прав в битовой маске: расписание, задания на всю группу, модерация чата,
+          участники, роли, оформление, оплата. Право можно выдать и лично одному человеку.</p>
+      </article>
+      <article class="card card--t">
+        <div class="card__icon">✉</div>
+        <h3>Уведомления</h3>
+        <p>Тихое уведомление с фазой дня и остатком времени, утренний будильник и напоминания
+          о заданиях — с точным запуском там, где система его разрешает.</p>
+      </article>
+      <article class="card card--g">
+        <div class="card__icon">↧</div>
+        <h3>Обновление из приложения</h3>
+        <p>Клиент спрашивает у сервера манифест релиза, качает APK с докачкой по <code>Range</code>,
+          проверяет SHA-256 и ставит через <code>PackageInstaller</code>.</p>
+      </article>
+      <article class="card card--s">
+        <div class="card__icon">⇅</div>
+        <h3>Офлайн и синхронизация</h3>
+        <p>Всё хранится в базе на устройстве, фоновая синхронизация раз в 15 минут,
+          импорт и экспорт расписания в JSON с объединением или заменой.</p>
+      </article>
+      <article class="card">
+        <div class="card__icon">≈</div>
+        <h3>Обмен по Wi-Fi</h3>
+        <p>Вложение можно скачать не с сервера, а у соседа по группе в той же сети.
+          Выключено по умолчанию, включается явно в настройках.</p>
+      </article>
+      <article class="card card--t">
+        <div class="card__icon">◐</div>
+        <h3>Тема и цвета</h3>
+        <p>Material 3: светлая, тёмная или как в системе. На Android 12+ по умолчанию берутся
+          цвета обоев, фирменная палитра работает на всех версиях.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- как считается -->
+<section id="engine" style="background:var(--surface-low);border-block:1px solid var(--outline-variant)">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Как это считается</span>
+      <h2>Три правила, из которых собирается день</h2>
+      <p class="lead">Ровно эти формулы работают в демонстрации выше — экран на странице
+        использует порт того же расчёта, что и приложение на телефоне.</p>
+    </div>
+
+    <div class="split">
+      <article class="explain">
+        <h3>1. Какая сегодня неделя</h3>
+        <p>В настройках задана опорная дата и её тип. Обе даты приводятся к понедельнику,
+          считается разница в неделях: чётная разница — тип опорной недели, нечётная — другой.</p>
+        <p><code>weekType(date) = (weeks(anchorMonday, monday) mod 2 == 0) ? anchor : other</code></p>
+        <p>Поэтому смена семестра — это одна дата в настройках, а не переразметка всего расписания.</p>
+      </article>
+
+      <article class="explain">
+        <h3>2. Что стоит на дату</h3>
+        <p>Берутся занятия постоянной недели нужного типа для этого дня недели. Если на дату
+          заведена замена, она вытесняет постоянное расписание целиком.</p>
+        <p>Занятие без звонка на свой номер пары не показывалось вообще: оно лежало в базе,
+          но его нельзя было ни увидеть, ни удалить. Теперь такая строка выводится с объяснением.</p>
+        <p>Пометку «только сегодня» получают лишь те пары замены, что реально отличаются от
+          обычной недели, — иначе метка дублировалась на каждом занятии дня.</p>
+      </article>
+
+      <article class="explain">
+        <h3>3. В какой фазе день</h3>
+        <p>Границы фаз строятся из звонков и режима пятиминутки. «Отпускают на 5 минут раньше»
+          сдвигает только конец пары; «перерыв в середине» вырезает 5 минут по центру.</p>
+        <div class="timeline">
+          <div class="timeline__row"><span>2 пара</span>
+            <div class="timeline__bar">
+              <span class="tl-lesson" style="flex:9">09:55 — 11:25</span>
+              <span class="tl-break" style="flex:1">−5</span>
+            </div></div>
+          <div class="timeline__row"><span>3 пара</span>
+            <div class="timeline__bar">
+              <span class="tl-lesson" style="flex:5">12:00</span>
+              <span class="tl-five" style="flex:1.4">5 мин</span>
+              <span class="tl-lesson" style="flex:5">13:35</span>
+            </div></div>
+          <div class="timeline__row"><span>между</span>
+            <div class="timeline__bar"><span class="tl-break" style="flex:1">Перерыв · далее: следующий предмет</span></div></div>
+        </div>
+      </article>
+    </div>
+
+    <div class="section-head" style="margin-top:56px">
+      <h2 style="font-size:22px">Звонки в демонстрации</h2>
+      <p class="lead">Своё расписание звонков заводится в настройках или приезжает импортом JSON.</p>
+    </div>
+    <div class="api-list" id="bells"></div>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- группа и роли -->
+<section id="group">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Группа</span>
+      <h2>Кто что может менять</h2>
+      <p class="lead">Роли раздаются старосте, заму и куратору; у любого участника можно
+        включить одно личное право, не заводя ради него отдельную роль. Владелец группы
+        (<code>can_manage</code>) может всё независимо от битов.</p>
+    </div>
+
+    <div class="table-scroll" id="perm-table"></div>
+
+    <div class="cards" style="margin-top:24px">
+      <article class="card card--s">
+        <div class="card__icon">#</div>
+        <h3>Вступление по коду</h3>
+        <p>Группа создаётся за один экран и получает код приглашения. Можно позвать человека
+          адресно — приглашение появится у него в разделе «Ещё».</p>
+      </article>
+      <article class="card">
+        <div class="card__icon">◫</div>
+        <h3>Общее расписание без входа</h3>
+        <p>У группы есть публичный снимок: расписание и задания видно и без аккаунта —
+          удобно первокурснику, который ещё не вступил.</p>
+      </article>
+      <article class="card card--t">
+        <div class="card__icon">⌸</div>
+        <h3>Преподаватели и аудитории</h3>
+        <p>Отдельные справочники с фото и заметками. Занятие ссылается на карточку,
+          а не хранит строку с фамилией.</p>
+      </article>
+      <article class="card card--g">
+        <div class="card__icon">↺</div>
+        <h3>История правок</h3>
+        <p>Сообщение можно исправить и удалить, а прежние версии сохраняются: модератор
+          видит, что было, и может восстановить.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- -------------------------------------------------------------------- тарифы -->
+<section id="plans" style="background:var(--surface-low);border-block:1px solid var(--outline-variant)">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Тарифы</span>
+      <h2>Расписание бесплатно, платит только хранилище</h2>
+      <p class="lead">Всё, ради чего приложение открывают каждый день — расписание, задания,
+        уведомления, чат группы — работает бесплатно и без ограничений. Платный тариф добавляет
+        место под вложения и оформляется на группу целиком, а не на каждого.</p>
+    </div>
+    <div class="plans" id="plans-grid"></div>
+    <p class="control__hint" style="margin-top:18px">Оплата — через ЮKassa, реквизиты карты
+      вводятся на её стороне и не проходят через сервер приложения. Цены указаны как в
+      конфигурации продукта; это демонстрационная страница, оплата с неё не производится.</p>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------------------- установка -->
+<section id="install">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Установка</span>
+      <h2>Три шага и вход по коду</h2>
+      <p class="lead">Приложение ставится APK-файлом. Дальше обновления приходят изнутри —
+        скачивать вручную второй раз не нужно.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <h3>Скачайте APK</h3>
+        <p>Файл лежит по адресу <code>/download/android</code> на сервере группы.
+          Имя файла содержит версию, например <code>Pairs-4.8.apk</code>.</p>
+      </div>
+      <div class="step">
+        <h3>Разрешите установку</h3>
+        <p>Android спросит про «Установку неизвестных приложений» для браузера или файлового
+          менеджера — разрешение выдаётся один раз.</p>
+      </div>
+      <div class="step">
+        <h3>Войдите и вступите в группу</h3>
+        <p>Вход через сайт по одноразовому коду (<code>pairs://auth?code=…</code>), затем
+          вступление по коду приглашения. Можно и вовсе не входить — расписание работает локально.</p>
+      </div>
+    </div>
+
+    <div class="split" style="margin-top:28px">
+      <article class="explain">
+        <h3>Как обновляется дальше</h3>
+        <p>При запуске клиент тихо спрашивает <code>GET /api/app/release?versionCode=N</code>.
+          Если версия новее — в разделе «Ещё» загорается точка, а на экране обновления видно
+          список изменений и прогресс загрузки.</p>
+        <p>APK качается с докачкой по заголовку <code>Range</code>, после загрузки сверяется
+          SHA-256 из манифеста, установка идёт через <code>PackageInstaller</code> — окно
+          подтверждения показывает система.</p>
+      </article>
+      <article class="explain">
+        <h3>Что нужно на сервере</h3>
+        <p>Бэкенд — FastAPI и PostgreSQL, поднимается одним <code>docker compose up</code>:
+          база, API, статика веб-клиента и, по желанию, Telegram-бот отдельным профилем.</p>
+        <div class="api-list" style="margin-top:6px">
+          <div class="api-row"><span class="method method--get">GET</span><span class="mono">/api/public/snapshot</span></div>
+          <div class="api-row"><span class="method method--get">GET</span><span class="mono">/api/groups/{id}/snapshot</span></div>
+          <div class="api-row"><span class="method method--put">PUT</span><span class="mono">/api/groups/{id}/schedule</span></div>
+          <div class="api-row"><span class="method method--post">POST</span><span class="mono">/api/groups/{id}/homework</span></div>
+          <div class="api-row"><span class="method method--post">POST</span><span class="mono">/api/threads/{id}/messages</span></div>
+          <div class="api-row"><span class="method method--get">GET</span><span class="mono">/api/app/release</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- --------------------------------------------------------------------- FAQ -->
+<section id="faq" style="background:var(--surface-low);border-top:1px solid var(--outline-variant)">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Вопросы</span>
+      <h2>Коротко о главном</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Нужен ли аккаунт, чтобы пользоваться?</summary>
+        <p>Нет. Расписание, задания и уведомления работают локально: приложение можно поставить,
+          импортировать файл расписания и не входить вообще. Аккаунт нужен для группы —
+          общего расписания, чата и синхронизации между устройствами.</p>
+      </details>
+      <details>
+        <summary>Работает ли приложение без интернета?</summary>
+        <p>Да. Данные лежат в базе на устройстве, а синхронизация идёт фоном раз в 15 минут,
+          когда сеть появляется. Вложения чата дополнительно кэшируются с настраиваемым лимитом.</p>
+      </details>
+      <details>
+        <summary>Откуда берётся расписание?</summary>
+        <p>Из трёх источников: ввод вручную, импорт JSON (в том числе из старого формата
+          Telegram-бота) и синхронизация с группой, где расписание ведёт староста.</p>
+      </details>
+      <details>
+        <summary>Что видно человеку, который ещё не вступил в группу?</summary>
+        <p>Публичный снимок: расписание и задания группы, помеченной как общая. Личные задания,
+          чат и участники не показываются.</p>
+      </details>
+      <details>
+        <summary>Как считается «чётная неделя»?</summary>
+        <p>От опорной даты в настройках. Обе даты приводятся к понедельнику, разница в неделях
+          берётся по модулю два. Никакой привязки к номеру недели в году нет — 1 сентября можно
+          объявить чётной или нечётной.</p>
+      </details>
+      <details>
+        <summary>Это законченный продукт или демонстрация?</summary>
+        <p>Эта страница — демонстрация. Приложение существует и собирается из исходников:
+          клиент на Kotlin и Jetpack Compose, сервер на FastAPI и PostgreSQL, веб-клиент на
+          TypeScript и Vite. На странице показаны реальные экраны и реальный расчёт,
+          но данные в них вымышленные.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__in">
+    <a class="brand" href="#top"><span class="brand__mark">П</span> Пары</a>
+    <p>Расписание, домашние задания и группа в одном приложении. Клиент — Kotlin и Jetpack
+      Compose, Material 3; сервер — FastAPI, PostgreSQL, Docker Compose; веб-клиент —
+      TypeScript и Vite.</p>
+    <div class="disclaimer">
+      Демонстрационный сайт. Группа, преподаватели, участники, сообщения и задания на этой
+      странице вымышлены. Экран приложения работает целиком в браузере: сеть не используется,
+      данные никуда не отправляются, оплата отсюда не производится.
+    </div>
+    <p>© <span id="year">2026</span> «Пары»</p>
+  </div>
+</footer>
+
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
