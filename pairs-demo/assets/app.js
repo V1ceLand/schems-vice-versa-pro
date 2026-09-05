@@ -1,9 +1,6 @@
 /*
- * Демонстрация приложения «Пары» прямо на странице.
- *
- * Всё считается в браузере: расписание раскладывается портом ScheduleEngine
- * (engine.js), фаза дня зависит от положения «машины времени», данные лежат
- * в data.js. Сервера здесь нет и сеть не нужна.
+ * Живой экран приложения «Пары» на странице: вкладки, расписание, задания,
+ * чат и настройки. Всё считается в браузере — сеть не нужна.
  */
 
 import { GROUP, HOMEWORK, MEMBERS, MESSAGES, PERMISSIONS, PLANS, SLOTS, THREADS } from './data.js';
@@ -11,7 +8,7 @@ import {
   DAY_NAMES, DAY_SHORT, addDays, isoDay, minutesToTime, mondayOf, overrideDate,
   plural, remaining, resolveDay, sameDay, startOfDay, status, weekType,
 } from './engine.js';
-import { icon } from './icons.js';
+import { icon, paintIcons } from './icons.js';
 
 /* ------------------------------------------------------------------ утилиты */
 
@@ -478,12 +475,12 @@ function screenSettings() {
         <span class="row__sub" style="display:block">${SLOTS.length} пар: с ${minutesToTime(SLOTS[0].start)} до ${minutesToTime(SLOTS[SLOTS.length - 1].end)}</span></span></div>
       <div class="row row--static"><span class="row__icon">${icon('download')}</span>
         <span><span class="row__title">Файл расписания</span>
-        <span class="row__sub" style="display:block">Импорт и экспорт JSON, объединение или замена</span></span></div>
+        <span class="row__sub" style="display:block">Импорт и экспорт, объединение или замена</span></span></div>
     </div>
     <div class="section-label">Данные и хранилище</div>
     <div class="list">
       ${switchRow('Сжимать отправленные фото', 'Оригинал уходит сразу, сжатая версия подменяет его позже', 'compress')}
-      ${switchRow('Обмен по Wi-Fi (P2P)', 'Вложения качаются у соседа по группе, а не с сервера', 'p2p')}
+      ${switchRow('Обмен по Wi-Fi', 'Получать фото и файлы от однокурсников в одной сети', 'p2p')}
       <div class="row row--static"><span class="row__icon">${icon('cloud')}</span>
         <span><span class="row__title">Локальный кэш вложений</span>
         <span class="row__sub" style="display:block">Занято 34 МБ из 100 МБ</span></span></div>
@@ -493,28 +490,23 @@ function screenSettings() {
 function screenUpdate() {
   return appbar({ title: 'Обновление', back: true })
     + `<div class="daycard" style="background:var(--primary-container);color:var(--on-primary-container)">
-      <div class="daycard__head">${icon('update', 16)}<span>Доступна версия 4.8</span></div>
-      <div class="daycard__title" style="font-size:16px">Установлена 4.7 (versionCode 9)</div>
-      <div class="daycard__sub">APK 18,4 МБ · SHA-256 проверяется после загрузки</div>
+      <div class="daycard__head">${icon('update', 16)}<span>Доступно обновление</span></div>
+      <div class="daycard__title" style="font-size:16px">Версия 4.8</div>
+      <div class="daycard__sub">Загружается — 11,8 МБ из 18,4 МБ</div>
       <div class="daycard__bar"><span style="width:64%"></span></div>
-      <div class="daycard__sub">Загружено 11,8 МБ из 18,4 МБ</div>
+      <div class="daycard__sub">Останется нажать «Установить»</div>
     </div>
     <div class="section-label">Что нового</div>
     <div class="list">
-      ${['Форум: темы по предметам и конспектам',
+      ${['Темы по предметам и конспектам',
         'Голосовые сообщения и реакции в чате',
-        'История правок сообщений и восстановление',
-        'Обмен вложениями по Wi-Fi между устройствами группы',
-        'Роли с точными правами вместо одного «может управлять»']
+        'Правка сообщений с сохранением прежней версии',
+        'Обмен фото и файлами без расхода мобильного трафика',
+        'Точные роли: кто правит расписание, а кто только смотрит']
         .map((line) => `<div class="row row--static">
           <span class="row__icon" style="background:var(--success-container);color:var(--on-success-container)">${icon('check', 18)}</span>
           <span><span class="row__title" style="font-weight:400">${esc(line)}</span></span></div>`).join('')}
-    </div>
-    <div class="list"><div class="row row--static">
-      <span class="row__icon">${icon('download')}</span>
-      <span><span class="row__title">Установка через PackageInstaller</span>
-      <span class="row__sub" style="display:block">Окно подтверждения показывает система, FileProvider не нужен</span></span>
-    </div></div>`;
+    </div>`;
 }
 
 const SCREENS = {
@@ -701,7 +693,7 @@ function renderPermissions() {
     <caption class="visually-hidden">Права ролей по умолчанию</caption>
     <thead><tr><th>Право</th>${PERMISSIONS.columns.map((c) => `<th>${esc(c)}</th>`).join('')}</tr></thead>
     <tbody>${PERMISSIONS.rows.map((row) => `<tr>
-      <td>${esc(row.name)} <code>${esc(row.key)}</code></td>
+      <td>${esc(row.name)}</td>
       ${row.bits.map((b) => `<td>${b ? '<span class="yes" title="есть">✓</span>' : '<span class="no" title="нет">—</span>'}</td>`).join('')}
     </tr>`).join('')}</tbody>
   </table>`;
@@ -718,26 +710,16 @@ function renderPlans() {
       : '<div class="plan__year">навсегда, без хранилища вложений</div>'}
     <p class="plan__note">${esc(p.note)}</p>
     <ul>${p.features.map((f) => `<li><span>${esc(f)}</span></li>`).join('')}</ul>
-  </div>`).join('');
-}
-
-function renderBells() {
-  const host = $('#bells');
-  if (!host) return;
-  host.innerHTML = SLOTS.map((s) => `<div class="api-row">
-    <span class="method method--get">${s.number} пара</span>
-    <span class="mono">${minutesToTime(s.start)} — ${minutesToTime(s.end)}
-      <span style="opacity:.7">· ${s.five === 'MIDDLE' ? 'пятиминутка в середине'
-        : s.five === 'EARLY_END' ? 'отпускают на 5 минут раньше' : 'без пятиминутки'}</span></span>
+    <a class="btn ${p.highlight ? 'btn--filled' : 'btn--outline'} plan__cta" href="${esc(p.href || '#start')}">${esc(p.cta || 'Подробнее')}</a>
   </div>`).join('');
 }
 
 /* ---------------------------------------------------------------------- старт */
 
 initTheme();
+paintIcons();
 renderPermissions();
 renderPlans();
-renderBells();
 initDemo();
 
 // Год в подвале и «сегодня» в подписи демонстрации.
